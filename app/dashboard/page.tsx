@@ -49,15 +49,15 @@ const banners = [
 // Feature cards data
 const features = [
     {
-      title: "Skin Cancer Analysis",
-      description: "Upload images for AI-powered carcinoma detection",
+      title: "Skin Condition Analysis",
+      description: "Upload images for AI-powered Skin Disease detection",
       icon: Microscope,
       href: "/dashboard/analysis",
       color: "bg-blue-100",
       iconColor: "text-blue-500",
     },
     {
-      title: "Oncologist Appointments",
+      title: "Dermatologist Appointments",
       description: "Schedule consultations with skin cancer specialists",
       icon: Calendar,
       href: "/dashboard/appointments",
@@ -136,8 +136,8 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Welcome Section */}
       <div>
-        <h1 className="text-4xl font-bold tracking-tight">Welcome to Carcino AI</h1>
-        <p className="text-xl text-muted-foreground">Your comprehensive skin cancer management platform</p>
+        <h1 className="text-4xl font-bold tracking-tight">Welcome to  DermaAI</h1>
+        <p className="text-xl text-muted-foreground">Your comprehensive skin condition management platform</p>
       </div>
 
      {/* Feature Banner Carousel */}
@@ -237,7 +237,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5 text-primary" />
-              Why Choose Carcino AI?
+              Why Choose DermaAI?
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -286,13 +286,13 @@ export default function DashboardPage() {
             <div className="rounded-lg border p-4">
               <p className="font-medium">New AI Model Released</p>
               <p className="text-sm text-muted-foreground">
-                Our latest AI model achieves 95% accuracy in skin condition detection
+                Our latest AI model achieves a right accuracy in skin condition detection
               </p>
             </div>
             <div className="rounded-lg border p-4">
               <p className="font-medium">Expanded Doctor Network</p>
               <p className="text-sm text-muted-foreground">
-                Now featuring over 100 specialized dermatologists across India
+                Now featuring over 10+ specialized dermatologists across India
               </p>
             </div>
             <div className="rounded-lg border p-4">

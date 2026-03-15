@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { getUserSession } from '@/lib/auth';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -26,39 +26,26 @@ export function AuthWrapper({
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const session = await getUserSession();
         
-        if (error) {
-          setError('Authentication check failed');
-          console.error('Auth error:', error);
-        }
+        setIsAuthenticated(!!session);
         
-        setIsAuthenticated(!!session?.user);
-        
-        if (requireAuth && !session?.user) {
+        if (requireAuth && !session) {
           router.push(redirectTo);
         }
       } catch (error) {
-        setError('Unexpected authentication error');
-        console.error('Unexpected auth error:', error);
+        setError('Authentication check failed');
+        console.error('Auth error:', error);
+        setIsAuthenticated(false);
+        if (requireAuth) {
+          router.push(redirectTo);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setIsAuthenticated(!!session?.user);
-        
-        if (requireAuth && !session?.user && event === 'SIGNED_OUT') {
-          router.push(redirectTo);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
   }, [requireAuth, redirectTo, router]);
 
   if (isLoading) {

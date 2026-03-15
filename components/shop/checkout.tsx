@@ -208,23 +208,23 @@ export function Checkout({ cart, total, onSuccess }: CheckoutProps) {
                 <h3 className="font-medium">{item.name}</h3>
                 <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
               </div>
-              <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+              <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
             </motion.div>
           ))}
           <Separator />
           <div className="space-y-2">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>${total.toFixed(2)}</span>
+              <span>₹{total.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Shipping</span>
-              <span>$5.99</span>
+              <span>₹49.99</span>
             </div>
             <Separator />
             <div className="flex justify-between font-bold">
               <span>Total</span>
-              <span>${(total + 5.99).toFixed(2)}</span>
+              <span>₹{(total + 49.99).toFixed(2)}</span>
             </div>
           </div>
         </div>

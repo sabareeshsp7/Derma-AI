@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { toast } from "@/components/ui/use-toast"
-import { supabase } from "@/lib/supabase"
+import { signOut } from "@/lib/auth"
 import { Input } from "@/components/ui/input"
 
 export function DashboardHeader({ user }: { user: { name?: string; email?: string; image?: string; user_metadata?: { avatar_url?: string } } | null }) {
@@ -20,9 +20,10 @@ export function DashboardHeader({ user }: { user: { name?: string; email?: strin
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
-
+      await signOut()
+      document.cookie = 'accessToken=; Max-Age=0; path=/'
+      document.cookie = 'idToken=; Max-Age=0; path=/'
+      document.cookie = 'refreshToken=; Max-Age=0; path=/'
       router.push("/login")
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Please try again.";

@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Calendar,
   Clock,
@@ -23,7 +24,7 @@ import {
 import { format, addDays } from "date-fns"
 import { jsPDF } from "jspdf"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -62,9 +63,9 @@ const doctors = [
   {
     id: 1,
     name: "Dr. Priya Sharma",
-    specialty: "Surgical Oncology",
+    specialty: "Dermatological Surgery",
     subspecialty: "Melanoma",
-    hospital: "City Cancer Institute",
+    hospital: "City Dermatology Institute",
     rating: 4.9,
     reviews: 124,
     experience: 15,
@@ -74,10 +75,10 @@ const doctors = [
     consultationFee: 1500,
     location: "Mumbai",
     about:
-      "Dr. Sharma is a renowned surgical oncologist specializing in melanoma and other skin cancers. She has performed over 1000 successful surgeries and is known for her patient-centered approach to care.",
+      "Dr. Sharma is a renowned dermatological surgeon specializing in melanoma and other skin conditions. She has performed over 1000 successful procedures and is known for her patient-centered approach to care.",
     education: [
-      "MD in Surgical Oncology, All India Institute of Medical Sciences",
-      "Fellowship in Melanoma Surgery, Memorial Sloan Kettering Cancer Center, USA",
+      "MD in Dermatological Surgery, All India Institute of Medical Sciences",
+      "Fellowship in Melanoma Treatment, Memorial Sloan Kettering Medical Center, USA",
     ],
     languages: ["English", "Hindi", "Marathi"],
     telemedicine: true,
@@ -85,8 +86,8 @@ const doctors = [
   {
     id: 2,
     name: "Dr. Rajiv Mehta",
-    specialty: "Medical Oncology",
-    subspecialty: "Skin Cancer",
+    specialty: "Clinical Dermatology",
+    subspecialty: "Skin Conditions",
     hospital: "Fortis Hospital",
     rating: 4.7,
     reviews: 132,
@@ -96,7 +97,7 @@ const doctors = [
     nextAvailable: "Tomorrow, 10:30 AM",
     consultationFee: 750,
     location: "Mumbai",
-    about: "Dr. Rohan Desai specializes in skin cancer diagnosis and treatment. He has extensive experience in dermatosurgery and is known for his expertise in treating complex skin conditions.",
+    about: "Dr. Rohan Desai specializes in skin condition diagnosis and treatment. He has extensive experience in dermatosurgery and is known for his expertise in treating complex skin conditions.",
     education: [
       "MBBS - Seth GS Medical College, Mumbai",
       "MD (Dermatology) - KEM Hospital, Mumbai",
@@ -137,12 +138,12 @@ const doctors = [
     rating: 4.8,
     reviews: 145,
     experience: 14,
-    image: "	data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E",
+    image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E",
     availableToday: false,
     nextAvailable: "Day after tomorrow, 11:00 AM",
     consultationFee: 1200,
     location: "Delhi",
-    about: "Dr. Ayaan Kapoor is a specialist in Mohs micrographic surgery and skin cancer treatment. He is known for his precision in surgical techniques and excellent patient outcomes.",
+    about: "Dr. Ayaan Kapoor is a specialist in Mohs micrographic surgery and skin condition treatment. He is known for his precision in surgical techniques and excellent patient outcomes.",
     education: [
       "MBBS - AIIMS, Delhi",
       "MD (Dermatology) - AIIMS, Delhi",
@@ -257,7 +258,7 @@ const doctors = [
     nextAvailable: "Tomorrow, 11:30 AM",
     consultationFee: 1500,
     location: "Chennai",
-    about: "Dr. Arvind Krishnan is a senior dermatopathologist with extensive experience in diagnosing complex skin conditions. He is known for his research work in skin cancer.",
+    about: "Dr. Arvind Krishnan is a senior dermatopathologist with extensive experience in diagnosing complex skin conditions. He is known for his research work in skin diseases.",
     education: [
       "MBBS - Madras Medical College",
       "MD (Dermatology) - AIIMS, Delhi",
@@ -280,7 +281,7 @@ const doctors = [
     nextAvailable: "Today, 4:00 PM",
     consultationFee: 1200,
     location: "Chennai",
-    about: "Dr. Reema Gupta specializes in Mohs micrographic surgery and skin cancer treatment. She is known for her expertise in treating complex skin cancers.",
+    about: "Dr. Reema Gupta specializes in Mohs micrographic surgery and skin condition treatment. She is known for her expertise in treating complex skin conditions.",
     education: [
       "MBBS - Madras Medical College",
       "MD (Dermatology) - AIIMS, Delhi",
@@ -372,7 +373,7 @@ const doctors = [
     nextAvailable: "Today, 5:30 PM",
     consultationFee: 1100,
     location: "Ahmedabad",
-    about: "Dr. Rajiv Bhatia is a senior dermatopathologist with extensive experience in diagnosing complex skin conditions. He is known for his research work in skin cancer.",
+    about: "Dr. Rajiv Bhatia is a senior dermatopathologist with extensive experience in diagnosing complex skin conditions. He is known for his research work in skin diseases.",
     education: [
       "MBBS - BJ Medical College",
       "MD (Dermatology) - AIIMS, Delhi",
@@ -438,13 +439,12 @@ const DoctorInfoModal = ({ doctor, isOpen, onClose, onSelectDoctor }: { doctor: 
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <img
+            <Image
               src={doctor.image}
               alt={doctor.name}
+              width={64}
+              height={64}
               className="w-16 h-16 rounded-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
-              }}
             />
             <div>
               <h3 className="text-xl font-bold">{doctor.name}</h3>
@@ -688,7 +688,7 @@ export default function AppointmentsPage() {
 
     // Add footer
     doc.setFontSize(10)
-    doc.text("For any queries, please contact support@dermasense.com", 105, 290, { align: "center" })
+    doc.text("For any queries, please contact support@dermaai.com", 105, 290, { align: "center" })
 
     // Save the PDF
     doc.save(`Appointment_${appointmentId}.pdf`)
@@ -745,8 +745,8 @@ export default function AppointmentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Oncologist Appointments</h2>
-          <p className="text-muted-foreground">Find and schedule consultations with specialized skin cancer doctors</p>
+          <h2 className="text-3xl font-bold tracking-tight">Dermatologist Appointments</h2>
+          <p className="text-muted-foreground">Find and schedule consultations with specialized dermatologists</p>
         </div>
 
         <div className="flex gap-2">
@@ -842,114 +842,145 @@ export default function AppointmentsPage() {
       </Card>
 
       {/* Doctor Listing */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-4">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">
             {filteredDoctors.length} {filteredDoctors.length === 1 ? "Doctor" : "Doctors"} Found
           </h3>
-
-          {filteredDoctors.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-              <Search className="h-8 w-8 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold">No doctors found</h3>
-              <p className="text-sm text-muted-foreground">Try adjusting your filters or search query</p>
-            </div>
-          ) : (
-            filteredDoctors.map((doctor) => (
-              <div key={doctor.id}>
-                <Card className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="flex flex-col md:flex-row">
-                      <div className="md:w-1/3 bg-muted p-4 flex items-center justify-center">
-                      <img
-                          src={doctor.image}
-                          alt={doctor.name}
-                          className="h-32 w-32 rounded-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
-                          }}
-                        />
-                      </div>
-                      <div className="md:w-2/3 p-6">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="text-xl font-bold">{doctor.name}</h3>
-                            <p className="text-muted-foreground">
-                              {doctor.specialty} • {doctor.subspecialty}
-                            </p>
-                            <p className="text-sm">{doctor.hospital}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setSelectedDoctorInfo(doctor)}
-                              className="h-8 w-8"
-                            >
-                              <Info className="h-4 w-4" />
-                            </Button>
-                            <div className="flex items-center">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="ml-1 font-medium">{doctor.rating}</span>
-                              <span className="ml-1 text-sm text-muted-foreground">({doctor.reviews})</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          <Badge variant="outline" className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {doctor.experience} years exp.
-                          </Badge>
-                          <Badge variant="outline" className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {doctor.location}
-                          </Badge>
-                          {doctor.telemedicine && (
-                            <Badge variant="outline" className="flex items-center gap-1">
-                              <Video className="h-3 w-3" />
-                              Telemedicine
-                            </Badge>
-                          )}
-                          <Badge variant="outline">₹{doctor.consultationFee}</Badge>
-                        </div>
-
-                        <div className="mt-4 flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium">Next Available</p>
-                            <p className={`text-sm ${doctor.availableToday ? "text-green-600" : "text-muted-foreground"}`}>
-                              {doctor.nextAvailable}
-                            </p>
-                          </div>
-                          <Button onClick={() => setSelectedDoctor(doctor)}>Book Appointment</Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            ))
-          )}
         </div>
 
-        {/* Appointment Booking Section */}
-        <div>
-          {selectedDoctor ? (
-            <div>
-              <Card className="sticky top-6">
-                <CardHeader>
-                  <CardTitle>Book an Appointment</CardTitle>
-                  <CardDescription>with {selectedDoctor.name}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+        {filteredDoctors.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+            <Search className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold">No doctors found</h3>
+            <p className="text-sm text-muted-foreground mt-2">Try adjusting your filters or search query</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredDoctors.map((doctor) => (
+              <Card key={doctor.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
+                <CardContent className="p-0 flex-1 flex flex-col">
+                  {/* Doctor Image */}
+                  <div className="relative bg-gradient-to-br from-emerald-50 to-blue-50 p-6 flex items-center justify-center">
+                    <div className="relative">
+                      <Image
+                        src={doctor.image}
+                        alt={doctor.name}
+                        width={128}
+                        height={128}
+                        className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-lg"
+                      />
+                      {doctor.availableToday && (
+                        <div className="absolute bottom-0 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded-full border-2 border-white shadow-sm">
+                          Available
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSelectedDoctorInfo(doctor)}
+                      className="absolute top-2 right-2 h-8 w-8 bg-white/80 hover:bg-white"
+                    >
+                      <Info className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Doctor Info */}
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="space-y-2 flex-1">
+                      <h3 className="text-lg font-bold text-gray-900">{doctor.name}</h3>
+                      <p className="text-sm text-emerald-600 font-semibold">
+                        {doctor.specialty}
+                      </p>
+                      <p className="text-xs text-gray-600">{doctor.subspecialty}</p>
+                      
+                      {/* Rating */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="ml-1 font-semibold text-sm">{doctor.rating}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">({doctor.reviews} reviews)</span>
+                      </div>
+
+                      {/* Hospital & Location */}
+                      <div className="space-y-1 pt-2">
+                        <p className="text-xs text-gray-600 flex items-center gap-1">
+                          <Stethoscope className="h-3 w-3" />
+                          {doctor.hospital}
+                        </p>
+                        <p className="text-xs text-gray-600 flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {doctor.location}
+                        </p>
+                      </div>
+
+                      {/* Features */}
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        <Badge variant="outline" className="text-xs">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {doctor.experience}+ yrs
+                        </Badge>
+                        {doctor.telemedicine && (
+                          <Badge variant="outline" className="text-xs border-purple-200 text-purple-700">
+                            <Video className="h-3 w-3 mr-1" />
+                            Video
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Next Available & Fee */}
+                    <div className="mt-4 pt-4 border-t space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Next Available</p>
+                          <p className="text-xs font-semibold text-emerald-600">
+                            {doctor.nextAvailable}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Fee</p>
+                          <p className="text-sm font-bold text-gray-900">₹{doctor.consultationFee}</p>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        onClick={() => setSelectedDoctor(doctor)} 
+                        className="w-full bg-emerald-600 hover:bg-emerald-700"
+                        size="sm"
+                      >
+                        Book Appointment
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Appointment Booking Section - Floating */}
+      {selectedDoctor && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedDoctor(null)}>
+          <div className="bg-background rounded-lg shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-background border-b p-4 flex items-center justify-between z-10">
+              <h3 className="font-bold text-lg">Book Appointment</h3>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedDoctor(null)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="p-6 space-y-4">
                   <div className="flex items-center gap-4">
-                    <img
+                    <Image
                       src={selectedDoctor.image}
                       alt={selectedDoctor.name}
+                      width={64}
+                      height={64}
                       className="h-16 w-16 rounded-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
-                      }}
                     />
                     <div>
                       <h3 className="font-bold">{selectedDoctor.name}</h3>
@@ -1097,36 +1128,18 @@ export default function AppointmentsPage() {
                       <span>₹{selectedDoctor.consultationFee + (consultationType === "telemedicine" ? 100 : 0)}</span>
                     </div>
                   </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-4">
-                  <Button className="w-full" onClick={handleBookAppointment}>
-                    Confirm Appointment
-                  </Button>
-                  <Button variant="outline" className="w-full" onClick={() => setSelectedDoctor(null)}>
-                    Cancel
-                  </Button>
-                </CardFooter>
-              </Card>
+              <div className="sticky bottom-0 bg-background border-t p-4 space-y-2">
+                <Button className="w-full" onClick={handleBookAppointment}>
+                  Confirm Appointment
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => setSelectedDoctor(null)}>
+                  Cancel
+                </Button>
+              </div>
             </div>
-          ) : (
-            <div className="sticky top-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Doctor Details</CardTitle>
-                  <CardDescription>Select a doctor to view details and book an appointment</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-                  <Stethoscope className="h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium">No Doctor Selected</h3>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Choose a doctor from the list to view their details and available appointment slots
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Booking Success Dialog - Improved layout with better containment and alignment */}
       <Dialog open={showBookingSuccess} onOpenChange={setShowBookingSuccess}>
@@ -1151,13 +1164,12 @@ export default function AppointmentsPage() {
                 {/* Doctor info card with controlled dimensions */}
                 <div className="rounded-lg bg-muted p-4 flex items-start gap-3">
                   <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-background">
-                    <img
+                    <Image
                       src={selectedDoctor.image}
                       alt={selectedDoctor.name}
+                      width={48}
+                      height={48}
                       className="h-12 w-12 object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E";
-                      }}
                     />
                   </div>
                   <div className="min-w-0 flex-1">

@@ -25,7 +25,7 @@ export const medicalProducts: MedicalProduct[] = [
     requiresPrescription: false,
     inStock: true,
     discount: 10,
-    brand: "DermaSense Healthcare",
+    brand: "Derma AI Healthcare",
     contents: "30 tablets"
   },
   {
@@ -38,7 +38,7 @@ export const medicalProducts: MedicalProduct[] = [
     category: "creams",
     requiresPrescription: false,
     inStock: true,
-    brand: "DermaSense Healthcare",
+    brand: "Derma AI Healthcare",
     contents: "50g tube"
   },
   {
@@ -132,7 +132,7 @@ export const medicalProducts: MedicalProduct[] = [
     requiresPrescription: false,
     inStock: true,
     discount: 25,
-    brand: "DermaSense Healthcare",
+    brand: "Derma AI Healthcare",
     contents: "30ml serum"
   },
   {

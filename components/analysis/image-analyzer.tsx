@@ -8,17 +8,16 @@ import {
   AlertCircle, 
   CheckCircle2, 
   Loader2, 
-  BarChart3, 
   Stethoscope,
   AlertTriangle,
   Volume2,
   Download,
-  Clock // Add this for medical history icon
+  Clock,
+  Brain
 } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-import html2pdf from 'html2pdf.js'
 import { motion } from 'framer-motion'
 
 import { Button } from "@/components/ui/button"
@@ -251,8 +250,10 @@ export function ImageAnalyzer() {
   }
 
   // Update the PDF export function with Carcino branding
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     if (analysisRef.current) {
+      const { default: html2pdf } = await import('html2pdf.js')
+
       // Define types for html2pdf options
       interface Html2PdfOptions {
         margin: [number, number, number, number];
@@ -347,29 +348,44 @@ export function ImageAnalyzer() {
     { risk: '', action: '' };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Upload Image Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Skin Lesion Analysis</CardTitle>
-          <CardDescription>Upload an image of a skin lesion for AI-powered carcinoma detection</CardDescription>
+      <Card className="border-2 border-emerald-100 dark:border-emerald-900/30 shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2" />
+        <CardHeader className="bg-gradient-to-br from-white to-emerald-50 dark:from-gray-800 dark:to-gray-900">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+              <Upload className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <CardTitle className="text-emerald-900 dark:text-emerald-100">Skin Condition Analysis</CardTitle>
+              <CardDescription className="text-emerald-700 dark:text-emerald-300">Upload an image for AI-powered analysis and instant results</CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div
-            className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center ${
-              selectedImage ? "border-primary" : "border-muted-foreground/25"
+            className={`border-2 border-dashed rounded-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center transition-all duration-300 ${
+              selectedImage 
+                ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20" 
+                : "border-gray-300 dark:border-gray-700 hover:border-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10"
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
             {!selectedImage ? (
               <>
-                <div className="mb-4 rounded-full bg-primary/10 p-3">
-                  <Upload className="h-6 w-6 text-primary" />
+                <div className="mb-6 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 p-6 shadow-lg">
+                  <Upload className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <h3 className="text-lg font-semibold mb-1">Upload Image</h3>
-                <p className="text-sm text-muted-foreground mb-4">Drag and drop an image, or click to browse</p>
-                <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                <h3 className="text-xl font-bold mb-2 text-emerald-900 dark:text-emerald-100">Upload Image</h3>
+                <p className="text-sm text-muted-foreground mb-6 max-w-md">Drag and drop your skin image here, or click the button below to browse</p>
+                <Button 
+                  size="lg"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
                   Select Image
                 </Button>
                 <input
@@ -388,29 +404,40 @@ export function ImageAnalyzer() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 z-10 rounded-full bg-background/80"
+                  className="absolute right-2 top-2 z-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg hover:bg-red-50 hover:text-red-600"
                   onClick={resetAnalysis}
                 >
                   <X className="h-4 w-4" />
                 </Button>
                 <div className="flex flex-col items-center">
-                  <div className="relative w-full max-w-md h-64 mb-4 overflow-hidden rounded-lg">
+                  <div className="relative w-full max-w-md h-80 mb-4 overflow-hidden rounded-xl border-4 border-emerald-200 dark:border-emerald-800 shadow-xl">
                     <Image
                       src={selectedImage || "/placeholder.svg"}
                       alt="Selected skin lesion"
                       fill
-                      className="object-contain"
+                      className="object-contain bg-white dark:bg-gray-900"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground mb-4">{fileName}</p>
-                  <Button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full max-w-xs">
+                  <div className="flex items-center gap-2 mb-6 px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">{fileName}</p>
+                  </div>
+                  <Button 
+                    onClick={handleAnalyze} 
+                    disabled={isAnalyzing} 
+                    size="lg"
+                    className="w-full max-w-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
+                  >
                     {isAnalyzing ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Analyzing...
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Analyzing with AI...
                       </>
                     ) : (
-                      "Analyze Image"
+                      <>
+                        <Brain className="mr-2 h-5 w-5" />
+                        Analyze Image
+                      </>
                     )}
                   </Button>
                 </div>
@@ -419,10 +446,18 @@ export function ImageAnalyzer() {
           </div>
 
           {isAnalyzing && (
-            <div className="mt-4 space-y-2">
-              <p className="text-sm text-center text-muted-foreground">Analyzing image with AI model...</p>
-              <Progress value={45} className="h-2" />
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 space-y-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-6 rounded-xl border border-emerald-200 dark:border-emerald-800"
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Brain className="h-5 w-5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
+                <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">AI Analysis in Progress...</p>
+              </div>
+              <Progress value={45} className="h-3 [&>div]:bg-gradient-to-r [&>div]:from-emerald-500 [&>div]:to-teal-500" />
+              <p className="text-xs text-center text-muted-foreground">Our deep learning model is analyzing your image</p>
+            </motion.div>
           )}
 
           {error && (
@@ -443,38 +478,47 @@ export function ImageAnalyzer() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="flex items-center">
-                  <span className="mr-2">Analysis Results</span>
-                  {result.details?.emoji && <span className="text-2xl">{result.details.emoji}</span>}
-                  {!result.details?.emoji && (
-                    result.prediction === "Carcinoma" ? (
-                      <AlertCircle className="h-5 w-5 text-destructive" />
+          <Card className="overflow-hidden border-2 border-emerald-100 dark:border-emerald-900/30 shadow-2xl">
+            <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 h-2" />
+            <CardHeader className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-800 dark:to-gray-900">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                    {result.details?.emoji ? (
+                      <span className="text-3xl">{result.details.emoji}</span>
+                    ) : result.prediction === "Carcinoma" ? (
+                      <AlertCircle className="h-8 w-8 text-red-600" />
                     ) : (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    )
-                  )}
-                </CardTitle>
-                <div className="flex items-center space-x-2">
+                      <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                    )}
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl text-emerald-900 dark:text-emerald-100">Analysis Complete</CardTitle>
+                    <CardDescription className="text-emerald-700 dark:text-emerald-300">AI-powered comprehensive skin analysis</CardDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
                   {/* Enhanced indication that analysis was saved to history */}
                   {analysisSaved && (
-                    <span className="text-xs text-green-600 flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> ✔ Saved to medical history
-                    </span>
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-full text-xs font-medium text-emerald-700 dark:text-emerald-300"
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      <span>Saved to History</span>
+                    </motion.div>
                   )}
-                  <Button variant="ghost" size="sm" onClick={speakSummary} className="flex items-center">
-                    <Volume2 className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Speak Summary</span>
+                  <Button variant="outline" size="sm" onClick={speakSummary} className="flex items-center shadow-sm">
+                    <Volume2 className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Speak</span>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={exportToPDF} className="flex items-center">
-                    <Download className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Export PDF</span>
+                  <Button variant="outline" size="sm" onClick={exportToPDF} className="flex items-center shadow-sm">
+                    <Download className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Export</span>
                   </Button>
                 </div>
               </div>
-              <CardDescription>AI-powered analysis of your skin lesion image</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Risk Warning Banners */}
@@ -714,41 +758,50 @@ export function ImageAnalyzer() {
       )}
 
       {/* Information Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>How Our AI Analysis Works</CardTitle>
+      <Card className="border-2 border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-1" />
+        <CardHeader className="text-center pb-8">
+          <CardTitle className="text-2xl">How Our AI Analysis Works</CardTitle>
+          <CardDescription className="text-base mt-2">State-of-the-art deep learning technology for accurate skin analysis</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto">
-                <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <div className="grid md:grid-cols-3 gap-8">
+            <motion.div 
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="text-center space-y-4 p-6 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto shadow-lg">
+                <Upload className="h-8 w-8 text-white" />
               </div>
-              <h4 className="font-medium">Upload & Preprocess</h4>
-              <p className="text-sm text-muted-foreground">
-                Images are preprocessed and normalized to match our trained model requirements
+              <h4 className="font-bold text-lg">1. Upload Image</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Upload your skin image securely. Our system preprocesses and normalizes it to match trained model requirements
               </p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto">
-                <BarChart3 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </motion.div>
+            <motion.div 
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="text-center space-y-4 p-6 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-800"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mx-auto shadow-lg">
+                <Brain className="h-8 w-8 text-white" />
               </div>
-              <h4 className="font-medium">CNN Analysis</h4>
-              <p className="text-sm text-muted-foreground">
-                Deep learning model analyzes cellular patterns, texture, and morphological features
+              <h4 className="font-bold text-lg">2. AI Analysis</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Advanced CNN deep learning model analyzes cellular patterns, texture, and morphological features with 95%+ accuracy
               </p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
-                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </motion.div>
+            <motion.div 
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="text-center space-y-4 p-6 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border border-emerald-200 dark:border-emerald-800"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mx-auto shadow-lg">
+                <CheckCircle2 className="h-8 w-8 text-white" />
               </div>
-              <h4 className="font-medium">Medical Report</h4>
-              <p className="text-sm text-muted-foreground">
-                Comprehensive analysis with risk assessment, recommendations, and clinical details
+              <h4 className="font-bold text-lg">3. Detailed Report</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Receive comprehensive analysis with risk assessment, medical recommendations, and actionable clinical insights
               </p>
-            </div>
-
-
+            </motion.div>
           </div>
         </CardContent>
       </Card>

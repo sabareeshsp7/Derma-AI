@@ -40,7 +40,7 @@ export function ShopCart({ open, onClose, items, setItems }: ShopCartProps) {
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = items.length > 0 ? 5.99 : 0
+  const shipping = items.length > 0 ? 49.99 : 0
   const total = subtotal + shipping
 
   const handleCheckoutSuccess = () => {
@@ -66,7 +66,7 @@ export function ShopCart({ open, onClose, items, setItems }: ShopCartProps) {
               exit={{ opacity: 0 }}
               className="flex flex-1 flex-col"
             >
-              <div className="flex-1 overflow-y-auto py-4">
+              <div className="flex-1 overflow-y-auto py-4 max-h-[60vh]">
                 {items.length === 0 ? (
                   <div className="flex h-full items-center justify-center">
                     <p className="text-muted-foreground">Your cart is empty</p>
@@ -91,7 +91,7 @@ export function ShopCart({ open, onClose, items, setItems }: ShopCartProps) {
                         <div className="flex flex-1 flex-col justify-between">
                           <div>
                             <h4 className="font-medium">{item.name}</h4>
-                            <p className="text-sm text-muted-foreground">${item.price}</p>
+                            <p className="text-sm text-muted-foreground">₹{item.price}</p>
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -128,16 +128,16 @@ export function ShopCart({ open, onClose, items, setItems }: ShopCartProps) {
                 <div className="space-y-1.5">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>${shipping.toFixed(2)}</span>
+                    <span>₹{shipping.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
                 <Button className="w-full" disabled={items.length === 0} onClick={() => setShowCheckout(true)}>

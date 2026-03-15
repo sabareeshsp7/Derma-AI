@@ -26,6 +26,82 @@ const paymentSchema = z.object({
   cardholderName: z.string().optional(),
   upiId: z.string().optional(),
   bankName: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // Validate card payment fields
+  if (data.paymentMethod === "card") {
+    if (!data.cardNumber || data.cardNumber.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Card number is required",
+        path: ["cardNumber"],
+      })
+    } else if (!/^[0-9]{16}$/.test(data.cardNumber.replace(/\s/g, ""))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Card number must be 16 digits",
+        path: ["cardNumber"],
+      })
+    }
+    if (!data.expiryDate || data.expiryDate.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Expiry date is required",
+        path: ["expiryDate"],
+      })
+    } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(data.expiryDate)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Expiry date must be in MM/YY format",
+        path: ["expiryDate"],
+      })
+    }
+    if (!data.cvv || data.cvv.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CVV is required",
+        path: ["cvv"],
+      })
+    } else if (!/^[0-9]{3,4}$/.test(data.cvv)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CVV must be 3 or 4 digits",
+        path: ["cvv"],
+      })
+    }
+    if (!data.cardholderName || data.cardholderName.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Cardholder name is required",
+        path: ["cardholderName"],
+      })
+    }
+  }
+  // Validate UPI payment fields
+  if (data.paymentMethod === "upi") {
+    if (!data.upiId || data.upiId.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "UPI ID is required",
+        path: ["upiId"],
+      })
+    } else if (!/^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(data.upiId)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid UPI ID format (e.g., username@bankname)",
+        path: ["upiId"],
+      })
+    }
+  }
+  // Validate Net Banking fields
+  if (data.paymentMethod === "netbanking") {
+    if (!data.bankName || data.bankName.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Bank name is required",
+        path: ["bankName"],
+      })
+    }
+  }
 })
 
 export default function PaymentPage() {
@@ -450,7 +526,7 @@ export default function PaymentPage() {
                       name="cardholderName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Cardholder Name</FormLabel>
+                          <FormLabel>Cardholder Name <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Input placeholder="John Doe" {...field} />
                           </FormControl>
@@ -463,7 +539,7 @@ export default function PaymentPage() {
                       name="cardNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Card Number</FormLabel>
+                          <FormLabel>Card Number <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Input placeholder="1234 5678 9012 3456" {...field} />
                           </FormControl>
@@ -477,7 +553,7 @@ export default function PaymentPage() {
                         name="expiryDate"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Expiry Date</FormLabel>
+                            <FormLabel>Expiry Date <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input placeholder="MM/YY" {...field} />
                             </FormControl>
@@ -490,7 +566,7 @@ export default function PaymentPage() {
                         name="cvv"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>CVV</FormLabel>
+                            <FormLabel>CVV <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input placeholder="123" {...field} />
                             </FormControl>
@@ -514,7 +590,7 @@ export default function PaymentPage() {
                       name="upiId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>UPI ID</FormLabel>
+                          <FormLabel>UPI ID <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Input placeholder="yourname@paytm" {...field} />
                           </FormControl>
@@ -537,7 +613,7 @@ export default function PaymentPage() {
                       name="bankName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Select Bank</FormLabel>
+                          <FormLabel>Select Bank <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Input placeholder="State Bank of India" {...field} />
                           </FormControl>

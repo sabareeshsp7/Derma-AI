@@ -1,17 +1,16 @@
 import type React from "react";
 import { cookies } from "next/headers";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { redirect } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard/header";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 
-// Define a proper type for User
 type CustomUser = {
   id: string;
   email: string;
   user_metadata: {
-    avatar_url: string; // Ensure avatar_url is always present
-    [key: string]: unknown; // Allow other metadata fields
+    avatar_url: string;
+    [key: string]: unknown;
   };
 };
 
@@ -20,23 +19,35 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createServerComponentClient({ cookies });
-  const { data } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const accessToken =
+    cookieStore.get('sb-access-token')?.value ||
+    cookieStore.get('accessToken')?.value;
 
-  // Ensure user exists and format user_metadata properly
-  const user: CustomUser | null = data.user
-    ? {
-        id: data.user.id,
-        email: data.user.email || "",
+  let user: CustomUser | null = null;
+
+  if (accessToken) {
+    try {
+      const tokenPayload = accessToken.split('.')[1];
+      const normalizedPayload = tokenPayload.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(Buffer.from(normalizedPayload, 'base64').toString());
+      const userId = payload.sub;
+      const email = payload.email;
+
+      user = {
+        id: userId,
+        email: email || '',
         user_metadata: {
-          avatar_url: data.user.user_metadata?.avatar_url || "",
-          ...data.user.user_metadata, // Keep other metadata fields
+          avatar_url: '',
         },
-      }
-    : null;
+      };
+    } catch (error) {
+      console.error('Failed to get user:', error);
+    }
+  }
 
   if (!user) {
-    return <div>Loading...</div>;
+    redirect('/login');
   }
 
   return (

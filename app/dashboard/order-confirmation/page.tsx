@@ -82,7 +82,7 @@ export default function OrderConfirmationPage() {
               deliveryAddress: parsedOrder.deliveryAddress,
               estimatedDelivery: parsedOrder.estimatedDelivery,
               type: "online_purchase",
-              source: "DermaSense Shop"
+              source: "Derma AI Shop"
             }
           })
           setHistorySaved(true)
@@ -140,6 +140,136 @@ export default function OrderConfirmationPage() {
     }
   }
 
+  const downloadInvoice = () => {
+    if (!orderData) {
+      toast.error("Order data not found")
+      return
+    }
+
+    try {
+      // Create invoice HTML content
+      const invoiceContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+    .company-name { font-size: 28px; font-weight: bold; color: #059669; margin-bottom: 5px; }
+    .invoice-title { font-size: 24px; font-weight: bold; margin-top: 10px; }
+    .section { margin-bottom: 20px; }
+    .section-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; background: #f3f4f6; padding: 8px; }
+    .info-row { display: flex; justify-content: space-between; padding: 5px 0; }
+    .label { font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background: #059669; color: white; padding: 10px; text-align: left; }
+    td { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+    .totals { margin-top: 20px; }
+    .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
+    .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px; margin-top: 10px; }
+    .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ccc; padding-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="company-name">Derma AI</div>
+    <div>Medical Products & Healthcare Solutions</div>
+    <div class="invoice-title">INVOICE</div>
+  </div>
+
+  <div class="section">
+    <div class="info-row">
+      <div><span class="label">Order ID:</span> ${orderData.orderId}</div>
+      <div><span class="label">Date:</span> ${formatDate(orderData.orderDate)}</div>
+    </div>
+    <div class="info-row">
+      <div><span class="label">Payment Method:</span> ${getPaymentMethodName(orderData.paymentMethod)}</div>
+      <div><span class="label">Status:</span> Confirmed</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Delivery Address</div>
+    <div>${orderData.deliveryAddress.name}</div>
+    <div>${orderData.deliveryAddress.address}</div>
+    <div>${orderData.deliveryAddress.city}, ${orderData.deliveryAddress.state || ''} - ${orderData.deliveryAddress.pincode || orderData.deliveryAddress.zipCode}</div>
+    <div>Phone: ${orderData.deliveryAddress.phone}</div>
+    ${orderData.deliveryAddress.email ? `<div>Email: ${orderData.deliveryAddress.email}</div>` : ''}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Order Items</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${orderData.items.map(item => `
+        <tr>
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td>₹${item.price.toFixed(2)}</td>
+          <td>₹${(item.price * item.quantity).toFixed(2)}</td>
+        </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="totals">
+    <div class="total-row">
+      <span>Subtotal:</span>
+      <span>₹${orderData.subtotal.toFixed(2)}</span>
+    </div>
+    <div class="total-row">
+      <span>Shipping:</span>
+      <span>₹${orderData.shipping.toFixed(2)}</span>
+    </div>
+    <div class="total-row">
+      <span>Tax (GST 18%):</span>
+      <span>₹${orderData.tax.toFixed(2)}</span>
+    </div>
+    <div class="total-row grand-total">
+      <span>Total Amount:</span>
+      <span>₹${orderData.total.toFixed(2)}</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>Thank you for your order!</div>
+    <div>Derma AI - Your trusted healthcare partner</div>
+    <div>For any queries, please contact support@dermaai.com</div>
+  </div>
+</body>
+</html>
+      `
+
+      // Create a new window with the invoice
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(invoiceContent)
+        printWindow.document.close()
+        
+        // Wait for content to load, then print
+        printWindow.onload = () => {
+          printWindow.focus()
+          printWindow.print()
+          toast.success("Invoice ready for download")
+        }
+      } else {
+        toast.error("Please allow popups to download invoice")
+      }
+    } catch (error) {
+      console.error("Error generating invoice:", error)
+      toast.error("Failed to generate invoice")
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -191,7 +321,7 @@ export default function OrderConfirmationPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Continue Shopping
         </Button>
-        <Button variant="outline" onClick={() => toast.success("Invoice download coming soon!")}>
+        <Button variant="default" onClick={downloadInvoice}>
           <Download className="mr-2 h-4 w-4" />
           Download Invoice
         </Button>

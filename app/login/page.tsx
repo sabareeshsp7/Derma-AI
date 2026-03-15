@@ -15,10 +15,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-// import { toast } from "@/components/ui/toast"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-
-const supabase = createClientComponentClient()
 
 const formSchema = z.object({
   email: z.string().email({
@@ -33,7 +29,7 @@ const features = [
   {
     icon: Brain,
     title: "AI-Powered Analysis",
-    description: "Advanced AI-powered skin cancer detection using machine learning",
+    description: "Advanced AI-powered skin condition detection using machine learning",
   },
   {
     icon: Stethoscope,
@@ -73,18 +69,32 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      })
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
 
-      if (error) throw error
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
 
       toast.success("Welcome back!", {
         description: "Successfully logged in.",
       })
 
-      router.push("/dashboard")
+      const redirectedFrom =
+        typeof window !== 'undefined'
+          ? new URLSearchParams(window.location.search).get('redirectedFrom')
+          : null
+      const target = redirectedFrom && redirectedFrom.startsWith('/dashboard')
+        ? redirectedFrom
+        : '/dashboard'
+
+      router.replace(target)
+      router.refresh()
     } catch (error) {
       toast.error("Error", {
         description: (error as Error).message || "Invalid credentials. Please try again.",
@@ -104,7 +114,7 @@ export default function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Welcome to Carcino AI
+            Welcome to DermaAI
           </motion.h1>
           <div className="space-y-6">
             {features.map((feature, index) => (
@@ -131,7 +141,7 @@ export default function LoginPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Login to your account</CardTitle>
-            <CardDescription>Enter your credentials to access your Carcino AI dashboard</CardDescription>
+            <CardDescription>Enter your credentials to access your DermaAI dashboard</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>

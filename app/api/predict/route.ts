@@ -30,6 +30,35 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data)
   } catch (error) {
     console.error("Error in predict API route:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes("ECONNREFUSED")) {
+        return NextResponse.json(
+          { 
+            error: "AI service is not available. Please ensure the FastAPI backend is running on port 8000.",
+            details: "Run: cd api && python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000"
+          }, 
+          { status: 503 }
+        )
+      }
+      if (error.message.includes("fetch failed")) {
+        return NextResponse.json(
+          { 
+            error: "Failed to connect to AI service",
+            details: error.message 
+          }, 
+          { status: 503 }
+        )
+      }
+    }
+    
+    return NextResponse.json(
+      { 
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error"
+      }, 
+      { status: 500 }
+    )
   }
 }

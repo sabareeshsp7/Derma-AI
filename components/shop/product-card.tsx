@@ -115,6 +115,7 @@ export function ProductCard({ product, view, onAddToCart, onAddToWishlist, onSha
                 : "border-red-200 hover:bg-red-50 hover:border-red-300"
             )}
             onClick={() => onAddToWishlist(product)}
+            title={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
           >
             <Heart className={cn(
               "h-4 w-4 transition-colors",

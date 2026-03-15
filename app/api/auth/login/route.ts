@@ -1,11 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-// import { cookies } from "next/headers";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { signIn } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -19,39 +13,33 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const result = await signIn(email, password);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 401 });
-    }
-
-    // Set session cookies for better persistence
     const response = NextResponse.json(
       {
         message: "Login successful",
         user: {
-          id: data.user.id,
-          email: data.user.email,
-          full_name: data.user.user_metadata?.full_name,
+          id: result.user?.id,
+          email: result.user?.email,
+          full_name: result.user?.user_metadata?.full_name,
         },
-        session: data.session,
+        session: result.session,
       },
       { status: 200 }
     );
 
     // Set secure cookies
-    if (data.session) {
-      response.cookies.set('sb-access-token', data.session.access_token, {
+    if (result.accessToken) {
+      response.cookies.set('sb-access-token', result.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: data.session.expires_in
+        maxAge: result.expiresIn
       });
-      
-      response.cookies.set('sb-refresh-token', data.session.refresh_token, {
+    }
+
+    if (result.refreshToken) {
+      response.cookies.set('sb-refresh-token', result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -62,10 +50,17 @@ export async function POST(request: Request) {
     return response;
   } catch (error: unknown) {
     console.error("Login error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+    const response = NextResponse.json(
+      { error: error instanceof Error ? error.message : "Invalid credentials" },
+      { status: 401 }
     );
+
+    // Ensure stale auth cookies do not keep user in an invalid authenticated state.
+    response.cookies.delete('sb-access-token');
+    response.cookies.delete('sb-refresh-token');
+    response.cookies.delete('accessToken');
+
+    return response;
   }
 }
 

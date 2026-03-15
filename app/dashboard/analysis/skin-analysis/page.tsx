@@ -18,7 +18,6 @@ import {
 import Image from "next/image"
 import { toast } from "sonner"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-import html2pdf from 'html2pdf.js'
 import { motion } from 'framer-motion'
 
 import { Button } from "@/components/ui/button"
@@ -43,14 +42,14 @@ const DOCTOR_MAP: Record<string, string[]> = {
 }
 
 const DISEASE_INFO: Record<string, string> = {
-  akiec: "Actinic keratoses are rough, scaly patches caused by long-term sun exposure. They are considered precancerous and may develop into squamous cell carcinoma.",
-  bcc: "Basal cell carcinoma is the most common type of skin cancer. It's usually caused by UV exposure and grows slowly, rarely spreading.",
-  bkl: "Benign keratosis includes various non-cancerous skin growths such as seborrheic keratoses. Generally harmless.",
+  akiec: "Actinic keratoses are rough, scaly patches caused by long-term sun exposure. They are considered pre-condition markers and may develop into squamous cell condition.",
+  bcc: "Basal cell condition is a common type of skin condition. It's usually caused by UV exposure and grows slowly, rarely spreading.",
+  bkl: "Benign keratosis includes various non-serious skin growths such as seborrheic keratoses. Generally harmless.",
   df: "Dermatofibroma is a common benign skin nodule, often arising due to minor skin injuries or insect bites.",
-  mel: "Melanoma is the most serious type of skin cancer. It develops from melanocytes and can spread rapidly if not detected early.",
-  nv: "Melanocytic nevus (mole) is a benign skin lesion composed of pigment-producing cells. While mostly harmless, some can become cancerous.",
+  mel: "Melanoma is a serious type of skin condition. It develops from melanocytes and can spread rapidly if not detected early.",
+  nv: "Melanocytic nevus (mole) is a benign skin lesion composed of pigment-producing cells. While mostly harmless, some should be monitored.",
   vasc: "Vascular lesions are abnormalities of blood vessels that appear as red or purple marks. Most are harmless but should be observed.",
-  carcinoma: "Carcinoma is a type of cancer that starts in cells that make up the skin or the tissue lining organs. Early detection and treatment significantly improve outcomes."
+  carcinoma: "Carcinoma is a type of condition that starts in cells that make up the skin or the tissue lining organs. Early detection and treatment significantly improve outcomes."
 }
 
 const PRECAUTIONS: Record<string, string[]> = {
@@ -84,11 +83,11 @@ const TREATMENTS: Record<string, string[]> = {
 
 // Add this additional data mapping for risk levels
 const RISK_LEVEL: Record<string, { risk: string; action: string }> = {
-  akiec: { risk: 'High', action: 'Consult a dermatologist to monitor or treat early signs of skin cancer.' },
+  akiec: { risk: 'High', action: 'Consult a dermatologist to monitor or treat early signs of skin conditions.' },
   bcc: { risk: 'Medium', action: 'Seek evaluation for potential treatment even if non-urgent.' },
   bkl: { risk: 'Low', action: 'Monitor but no immediate treatment needed.' },
   df: { risk: 'Low', action: 'Benign condition. No treatment typically required.' },
-  mel: { risk: 'Very High', action: 'Seek immediate medical attention. This condition can be life-threatening.' },
+  mel: { risk: 'Very High', action: 'Seek immediate medical attention. This condition requires specialist care.' },
   nv: { risk: 'Medium', action: 'Have it evaluated if it changes in size or color.' },
   vasc: { risk: 'Low', action: 'No treatment usually necessary unless aesthetic or symptomatic.' },
   carcinoma: { risk: 'Very High', action: 'Seek immediate medical attention. This condition requires specialist care.' }
@@ -251,8 +250,10 @@ export default function ImageAnalyzer() {
   }
 
   // Update the PDF export function with Carcino branding
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     if (analysisRef.current) {
+      const { default: html2pdf } = await import('html2pdf.js')
+
       // Define types for html2pdf options
       interface Html2PdfOptions {
         margin: [number, number, number, number];
@@ -352,7 +353,7 @@ export default function ImageAnalyzer() {
       <Card>
         <CardHeader>
           <CardTitle>Skin Lesion Analysis</CardTitle>
-          <CardDescription>Upload an image of a skin lesion for AI-powered carcinoma detection</CardDescription>
+          <CardDescription>Upload an image of a skin lesion for AI-powered condition detection</CardDescription>
         </CardHeader>
         <CardContent>
           <div

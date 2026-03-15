@@ -1,11 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-// Use service role key for server-side operations, fallback to anon key
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { signUp } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -19,33 +13,23 @@ export async function POST(request: Request) {
       );
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 6 characters long" },
+        { error: "Password must be at least 8 characters long" },
         { status: 400 }
       );
     }
 
-    const { data, error } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      user_metadata: { 
-        full_name: name 
-      },
-      email_confirm: true // Auto-confirm email for development
-    });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
+    // Create user in Supabase
+    const result = await signUp(email, password, name);
 
     return NextResponse.json(
-      { 
-        message: "Registration successful", 
+      {
+        message: "Registration successful! You can now log in.",
         user: {
-          id: data.user.id,
-          email: data.user.email,
-          full_name: data.user.user_metadata?.full_name
+          id: result.user?.id,
+          email: result.user?.email,
+          full_name: result.user?.user_metadata?.full_name,
         }
       },
       { status: 200 }
@@ -53,7 +37,7 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     console.error('Registration error:', error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error instanceof Error ? error.message : "Registration failed" },
       { status: 500 }
     );
   }

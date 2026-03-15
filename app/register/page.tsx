@@ -23,8 +23,8 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
+  password: z.string().min(8, {
+    message: "Password must be at least 8 characters.",
   }),
 });
 
@@ -87,13 +87,18 @@ export default function RegisterPage() {
         throw new Error(data.error || "Registration failed")
       }
 
-      toast.success("Registration successful! Please check your email to verify your account.")
+      toast.success("Registration successful!", {
+        description: "You can now log in with your credentials.",
+      })
 
-      router.push("/login")
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
     } catch (error: unknown) {
       toast.error((error as Error).message || "Something went wrong. Please try again.")
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   return (
@@ -107,7 +112,7 @@ export default function RegisterPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Join Carcino AI
+            Join DermaAI
           </motion.h1>
           <div className="space-y-6">
             {features.map((feature, index) => (
@@ -134,7 +139,7 @@ export default function RegisterPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Create an account</CardTitle>
-            <CardDescription>Get started with Carcino AI by creating your account.</CardDescription>
+            <CardDescription>Get started with DermaAI by creating your account.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>

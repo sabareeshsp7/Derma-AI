@@ -1,41 +1,47 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
+function hasValidAccessToken(token?: string): boolean {
+  if (!token) return false
+
+  try {
+    const parts = token.split('.')
+    if (parts.length < 2) return false
+
+    const normalizedPayload = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+    const payload = JSON.parse(Buffer.from(normalizedPayload, 'base64').toString()) as {
+      exp?: number
+    }
+
+    if (!payload.exp) return true
+
+    const nowInSeconds = Math.floor(Date.now() / 1000)
+    return payload.exp > nowInSeconds
+  } catch {
+    return false
+  }
+}
+
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req, res })
+  const rawAccessToken = req.cookies.get('sb-access-token')?.value || req.cookies.get('accessToken')?.value
+  const hasValidToken = hasValidAccessToken(rawAccessToken)
+  const { pathname } = req.nextUrl
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  // Allow access to profile and settings pages without authentication for demo purposes
   if (
-    !session &&
-    req.nextUrl.pathname.startsWith("/dashboard") &&
-    !req.nextUrl.pathname.includes("/profile") &&
-    !req.nextUrl.pathname.includes("/settings")
+    !hasValidToken &&
+    pathname.startsWith("/dashboard")
   ) {
     const redirectUrl = req.nextUrl.clone()
     redirectUrl.pathname = "/login"
-    redirectUrl.searchParams.set(`redirectedFrom`, req.nextUrl.pathname)
+    redirectUrl.searchParams.set("redirectedFrom", pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Update the response header to handle auth state
-  return res
+  return NextResponse.next()
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
     "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 }

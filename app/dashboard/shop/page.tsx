@@ -1,111 +1,92 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Filter, Grid, List, ShoppingCart, Heart } from "lucide-react"
+import { Search, ShoppingCart, Grid3X3, List, Filter, Heart } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProductCard } from "@/components/shop/product-card"
 import { ProductDetail } from "@/components/shop/product-detail"
+import { medicalProducts, type MedicalProduct } from "@/components/shop/medical-products"
+import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useCart } from "@/contexts/cart-context"
 import { useWishlist } from "@/components/shop/wishlist-context"
 import { toast } from "sonner"
-import { medicalProducts, type MedicalProduct as Product } from "@/components/shop/medical-products"
 
 export default function ShopPage() {
   const router = useRouter()
-  
-  // Fix: Make sure to destructure cartCount from useCart
-  const { addItem, cartCount } = useCart()
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
-  
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [view, setView] = useState<"grid" | "list">("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [sortBy, setSortBy] = useState("name")
-  const [priceRange] = useState([0, 2000])
-  const [view, setView] = useState<"grid" | "list">("grid")
+  const [selectedProduct, setSelectedProduct] = useState<MedicalProduct | null>(null)
+  const { cartItems = [], addItem } = useCart()
+  const { addToWishlist, removeFromWishlist, isInWishlist, wishlistCount } = useWishlist()
 
-  // Get unique categories
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(medicalProducts.map(p => p.category)))
-    return ["all", ...cats]
-  }, [])
+  const categories = [
+    { value: "all", label: "All Products" },
+    { value: "tablets", label: "Tablets" },
+    { value: "creams", label: "Creams" },
+    { value: "supplements", label: "Supplements" },
+    { value: "equipment", label: "Equipment" },
+    { value: "lotions", label: "Lotions" },
+  ]
 
-  // Filter and sort products
-  const filteredProducts = useMemo(() => {
-    const filtered = medicalProducts.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          product.description.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesCategory = selectedCategory === "all" || product.category === selectedCategory
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
-      
-      return matchesSearch && matchesCategory && matchesPrice
-    })
+  const filteredProducts = medicalProducts.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.brand?.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
 
-    // Sort products
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "price-low":
-          return a.price - b.price
-        case "price-high":
-          return b.price - a.price
-        case "rating":
-          return b.rating - a.rating
-        case "name":
-        default:
-          return a.name.localeCompare(b.name)
-      }
-    })
-
-    return filtered
-  }, [searchQuery, selectedCategory, priceRange, sortBy])
-
-  const handleAddToCart = (product: Product) => {
-    const cartProduct = {
-      ...product,
-      id: product.id.toString()
-    }
-    addItem(cartProduct)
+  const handleAddToCart = (product: MedicalProduct) => {
+    addItem({ ...product, id: product.id.toString() })
     toast.success("Added to cart", {
       description: `${product.name} has been added to your cart.`,
     })
   }
 
-  const handleAddToWishlist = (product: Product) => {
-    const wishlistProduct = {
-      ...product,
-      id: product.id.toString()
-    }
+  const handleAddToWishlist = (product: MedicalProduct) => {
+    const productId = product.id.toString()
     
-    if (isInWishlist(product.id.toString())) {
-      removeFromWishlist(product.id.toString())
+    if (isInWishlist(productId)) {
+      removeFromWishlist(productId)
       toast.success("Removed from wishlist", {
         description: `${product.name} has been removed from your wishlist.`,
       })
     } else {
-      addToWishlist(wishlistProduct)
+      addToWishlist({
+        id: productId,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        description: product.description,
+      })
       toast.success("Added to wishlist", {
         description: `${product.name} has been added to your wishlist.`,
       })
     }
   }
 
-  const handleShare = (product: Product) => {
-    const shareUrl = `${window.location.origin}/shop/product/${product.id}`
-    
+  const handleShare = (product: MedicalProduct) => {
     if (navigator.share) {
       navigator.share({
         title: product.name,
         text: product.description,
-        url: shareUrl,
-      }).catch((error) => console.log("Error sharing", error))
+        url: window.location.href,
+      })
     } else {
-      navigator.clipboard.writeText(shareUrl)
+      navigator.clipboard.writeText(window.location.href)
       toast.success("Link copied", {
-        description: "Product link has been copied to clipboard.",
+        description: "Product link copied to clipboard.",
       })
     }
   }
@@ -116,136 +97,81 @@ export default function ShopPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Medical Shop</h1>
-          <p className="text-muted-foreground">
-            Professional medical equipment and supplies
-          </p>
+          <p className="text-muted-foreground">Browse our selection of medical products and supplies</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push("/dashboard/wishlist")}
-          >
-            <Heart className="h-4 w-4 mr-2" />
-            Wishlist
+        <div className="flex gap-2">
+          <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/wishlist")} className="relative">
+            <Heart className="h-4 w-4" />
+            {wishlistCount > 0 && (
+              <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500">
+                {wishlistCount}
+              </Badge>
+            )}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push("/dashboard/cart")}
-            className="relative"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                {cartCount}
-              </span>
+          <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/cart")} className="relative">
+            <ShoppingCart className="h-4 w-4" />
+            {cartItems.length > 0 && (
+              <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                {cartItems.length}
+              </Badge>
             )}
           </Button>
         </div>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Search */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Category */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category === "all" ? "All Categories" : category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Sort */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Sort By</label>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Rating</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* View Toggle */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">View</label>
-              <div className="flex border rounded-lg p-1">
-                <Button
-                  variant={view === "grid" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setView("grid")}
-                  className="flex-1"
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={view === "list" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setView("list")}
-                  className="flex-1"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Search and Filters */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <Filter className="mr-2 h-4 w-4" />
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category.value} value={category.value}>
+                {category.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className="flex gap-2">
+          <Button
+            variant={view === "grid" ? "default" : "outline"}
+            size="icon"
+            onClick={() => setView("grid")}
+          >
+            <Grid3X3 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={view === "list" ? "default" : "outline"}
+            size="icon"
+            onClick={() => setView("list")}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
       {/* Products Grid/List */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {filteredProducts.length} of {medicalProducts.length} products
-          </p>
-        </div>
-
+      <div className="rounded-lg border bg-card p-6">
         {filteredProducts.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <p className="text-muted-foreground">No products found matching your criteria.</p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-muted-foreground">No products found matching your search.</p>
+          </div>
         ) : (
-          <div className={view === "grid" 
-            ? "grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-            : "space-y-4"
+          <div className={
+            view === "grid"
+              ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              : "flex flex-col gap-4"
           }>
             {filteredProducts.map((product) => (
               <ProductCard
@@ -263,12 +189,14 @@ export default function ShopPage() {
       </div>
 
       {/* Product Detail Modal */}
-      <ProductDetail
-        product={selectedProduct}
-        open={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onAddToCart={handleAddToCart}
-      />
+      {selectedProduct && (
+        <ProductDetail
+          product={selectedProduct}
+          open={!!selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={handleAddToCart}
+        />
+      )}
     </div>
   )
 }

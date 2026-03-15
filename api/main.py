@@ -6,10 +6,12 @@ import tensorflow as tf
 import cv2
 import io
 import base64
-from PIL import Image
+from PIL import Image, ImageStat
 import uvicorn
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
+import pytesseract
+import re
 
 app = FastAPI(title="Carcino AI API", description="API for carcinoma cell detection")
 
@@ -66,6 +68,84 @@ async def startup_event():
 @app.get("/")
 def read_root():
     return {"message": "Carcino AI API is running", "status": "healthy"}
+
+def validate_skin_image(image_bytes) -> Tuple[bool, str]:
+    """
+    Validate if the uploaded image is likely a skin lesion image.
+    Returns (is_valid, error_message)
+    """
+    try:
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        image_array = np.array(image)
+        
+        # 1. Check image size - too small images are suspicious
+        if image.size[0] < 50 or image.size[1] < 50:
+            return False, "Image is too small. Please upload a clear image of at least 50x50 pixels."
+        
+        # 2. Detect text in image using OCR
+        try:
+            # Try to detect text using pytesseract
+            # Note: Requires Tesseract OCR to be installed on system
+            text = pytesseract.image_to_string(image)
+            # Remove whitespace and check if significant text exists
+            clean_text = re.sub(r'\s+', '', text)
+            if len(clean_text) > 20:  # More than 20 characters of text
+                return False, "Image appears to contain text or documents. Please upload a clear photo of a skin lesion only."
+        except pytesseract.TesseractNotFoundError:
+            # Tesseract not installed - skip text detection but continue with other validations
+            print("Tesseract OCR not installed - text detection skipped")
+        except Exception as ocr_error:
+            # If OCR fails, continue with other validations
+            print(f"OCR check skipped: {ocr_error}")
+        
+        # 3. Check for skin-like color distribution
+        # Skin tones typically have specific RGB ranges
+        hsv_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
+        
+        # Define skin color range in HSV
+        lower_skin = np.array([0, 20, 70], dtype=np.uint8)
+        upper_skin = np.array([20, 255, 255], dtype=np.uint8)
+        
+        skin_mask = cv2.inRange(hsv_image, lower_skin, upper_skin)
+        skin_pixel_percentage = (np.sum(skin_mask > 0) / (image_array.shape[0] * image_array.shape[1])) * 100
+        
+        # At least 10% of image should have skin-like colors
+        if skin_pixel_percentage < 10:
+            return False, "Image does not appear to be a skin lesion. Please upload a clear photo of skin."
+        
+        # 4. Check image variance (detect blank or uniform images)
+        stat = ImageStat.Stat(image)
+        variance = sum(stat.var) / len(stat.var)
+        if variance < 100:  # Very low variance indicates blank/uniform image
+            return False, "Image appears to be blank or too uniform. Please upload a clear skin lesion photo."
+        
+        # 5. Edge detection - medical images should have some detail
+        gray = cv2.cvtColor(image_array, cv2.COLOR_RGB2GRAY)
+        edges = cv2.Canny(gray, 50, 150)
+        edge_percentage = (np.sum(edges > 0) / edges.size) * 100
+        
+        if edge_percentage < 1:  # Too few edges
+            return False, "Image lacks sufficient detail. Please upload a clearer photo of the skin lesion."
+        
+        # 6. Check for unnatural patterns (like screenshots with UI elements)
+        # Detect sharp horizontal/vertical lines that might indicate screenshots
+        sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
+        sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+        
+        horizontal_edges = np.sum(np.abs(sobely) > 100)
+        vertical_edges = np.sum(np.abs(sobelx) > 100)
+        total_pixels = gray.size
+        
+        # If more than 30% of pixels have strong horizontal or vertical edges, likely a screenshot
+        if (horizontal_edges / total_pixels) > 0.3 or (vertical_edges / total_pixels) > 0.3:
+            return False, "Image appears to be a screenshot or contains UI elements. Please upload a direct photo of skin."
+        
+        return True, "Image validation passed"
+        
+    except Exception as e:
+        print(f"Validation error: {str(e)}")
+        return False, f"Error validating image: {str(e)}"
+
 
 def preprocess_image(image_bytes):
     try:
@@ -138,6 +218,12 @@ async def predict(file: UploadFile = File(...)):
     if file_ext not in valid_extensions:
         raise HTTPException(status_code=400, detail=f"Invalid file type. Supported types: {', '.join(valid_extensions)}")
     contents = await file.read()
+    
+    # Validate if image is actually a skin lesion
+    is_valid, validation_message = validate_skin_image(contents)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=validation_message)
+    
     try:
         image_array = preprocess_image(contents)
     except Exception as e:
@@ -151,6 +237,14 @@ async def predict(file: UploadFile = File(...)):
         predicted_class_index = np.argmax(predictions[0])
         predicted_class = class_names[predicted_class_index]
         confidence = float(predictions[0][predicted_class_index])
+        
+        # Additional confidence check - reject if model is too uncertain
+        if confidence < 0.3:  # Less than 30% confidence
+            raise HTTPException(
+                status_code=400, 
+                detail="The image quality is unclear or does not appear to be a recognizable skin lesion. Please upload a clearer, well-lit photo of the skin area."
+            )
+        
         class_probs = {class_names[i]: float(predictions[0][i]) for i in range(len(class_names))}
         heatmap_base64 = generate_heatmap(image_array, predictions)
         return {

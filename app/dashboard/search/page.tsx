@@ -60,10 +60,10 @@ export default function SearchPage() {
 
       const mockResults: SearchResult[] = [
         {
-          title: "Understanding Skin Cancer: Types, Symptoms, and Treatments",
-          url: "https://example.com/skin-cancer-guide",
+          title: "Understanding Skin Conditions: Types, Symptoms, and Treatments",
+          url: "https://example.com/skin-conditions-guide",
           snippet:
-            "Comprehensive guide to different types of skin cancer including melanoma, basal cell carcinoma, and squamous cell carcinoma. Learn about early warning signs and treatment options.",
+            "Comprehensive guide to different types of skin conditions including melanoma, basal cell conditions, and squamous cell conditions. Learn about early warning signs and treatment options.",
           domain: "example.com",
           publishedTime: "2023-11-15T14:30:00Z",
         },
@@ -71,7 +71,7 @@ export default function SearchPage() {
           title: "Latest Advancements in Dermatological AI Diagnostics",
           url: "https://medjournal.org/ai-dermatology",
           snippet:
-            "Recent breakthroughs in artificial intelligence are revolutionizing how dermatologists diagnose skin conditions. AI models can now detect potential skin cancer with accuracy comparable to expert dermatologists.",
+            "Recent breakthroughs in artificial intelligence are revolutionizing how dermatologists diagnose skin conditions. AI models can now detect potential skin conditions with accuracy comparable to expert dermatologists.",
           domain: "medjournal.org",
           publishedTime: "2024-02-28T09:15:00Z",
         },

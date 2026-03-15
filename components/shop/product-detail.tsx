@@ -152,7 +152,7 @@ export function ProductDetail({ product, open, onClose, onAddToCart }: ProductDe
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <h4 className="font-semibold text-emerald-700">Brand</h4>
-                    <p className="text-gray-700">{product.brand || "DermaSense Healthcare"}</p>
+                    <p className="text-gray-700">{product.brand || "Derma AI Healthcare"}</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <h4 className="font-semibold text-emerald-700">Category</h4>

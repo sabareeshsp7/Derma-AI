@@ -28,19 +28,19 @@ const menuItems = [
     href: "/dashboard",
   },
   {
-    title: "Skin Cancer Analysis",
+    title: "Skin Condition Analysis",
     icon: Microscope,
     href: "/dashboard/analysis",
   },
   {
-    title: "Oncologist Appointments",
+    title: "Dermatologist Appointments",
     icon: Calendar,
     href: "/dashboard/appointments",
   },
   // {
   //   title: "Treatment Plans",
   //   icon: Activity,
-  //   href: "/dashboard/treatment",
+    // href: "/dashboard/treatment",
   // },
   {
     title: "Community & Resources",
@@ -109,7 +109,7 @@ export function DashboardSidebar() {
             <SheetTitle className="flex items-center gap-2">
               <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
                 <Activity className="h-6 w-6 text-primary" />
-                <span>Carcino AI</span>
+                <span>DermaAI</span>
               </Link>
             </SheetTitle>
           </SheetHeader>
@@ -122,7 +122,7 @@ export function DashboardSidebar() {
         <div className="flex h-14 items-center border-b px-4">
           <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
             <Activity className="h-6 w-6 text-primary" />
-            <span>Carcino AI</span>
+            <span>DermaAI</span>
           </Link>
         </div>
         <SidebarContent />
