@@ -81,7 +81,10 @@ export default function RegisterPage() {
         body: JSON.stringify(values),
       })
 
-      const data = await response.json()
+      const contentType = response.headers.get("content-type") || ""
+      const data = contentType.includes("application/json")
+        ? await response.json()
+        : { error: await response.text() }
 
       if (!response.ok) {
         throw new Error(data.error || "Registration failed")

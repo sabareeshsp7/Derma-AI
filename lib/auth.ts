@@ -3,7 +3,7 @@
  * Simple authentication using Supabase
  */
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 type SupabaseConfig = {
   url: string
@@ -42,16 +42,35 @@ function getSupabaseConfig(): SupabaseConfig {
   return { url, anonKey }
 }
 
-const supabaseConfig = getSupabaseConfig()
+let supabaseInstance: SupabaseClient | null = null
+
+function getSupabaseClient(): SupabaseClient {
+  if (supabaseInstance) {
+    return supabaseInstance
+  }
+
+  const supabaseConfig = getSupabaseConfig()
+  supabaseInstance = createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  })
+
+  return supabaseInstance
+}
 
 // Client for browser usage
-export const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+export const supabase = {
   auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-    detectSessionInUrl: false,
+    signUp: (...args: Parameters<SupabaseClient['auth']['signUp']>) => getSupabaseClient().auth.signUp(...args),
+    signInWithPassword: (...args: Parameters<SupabaseClient['auth']['signInWithPassword']>) => getSupabaseClient().auth.signInWithPassword(...args),
+    signOut: (...args: Parameters<SupabaseClient['auth']['signOut']>) => getSupabaseClient().auth.signOut(...args),
+    getSession: (...args: Parameters<SupabaseClient['auth']['getSession']>) => getSupabaseClient().auth.getSession(...args),
+    getUser: (...args: Parameters<SupabaseClient['auth']['getUser']>) => getSupabaseClient().auth.getUser(...args),
   },
-})
+}
 
 /**
  * Sign up a new user with Supabase

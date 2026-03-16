@@ -21,9 +21,34 @@ export async function POST(request: NextRequest) {
       body: formData,
     })
 
+    const contentType = response.headers.get("content-type") || ""
+    const isJson = contentType.includes("application/json")
+
     if (!response.ok) {
-      const errorData = await response.json()
-      return NextResponse.json({ error: errorData.detail || "Failed to process image" }, { status: response.status })
+      if (isJson) {
+        const errorData = await response.json()
+        return NextResponse.json({ error: errorData.detail || errorData.error || "Failed to process image" }, { status: response.status })
+      }
+
+      const errorText = await response.text()
+      return NextResponse.json(
+        {
+          error: "AI service returned a non-JSON response",
+          details: errorText.slice(0, 200),
+        },
+        { status: response.status }
+      )
+    }
+
+    if (!isJson) {
+      const bodyText = await response.text()
+      return NextResponse.json(
+        {
+          error: "AI service response format is invalid",
+          details: bodyText.slice(0, 200),
+        },
+        { status: 502 }
+      )
     }
 
     const data = await response.json()
