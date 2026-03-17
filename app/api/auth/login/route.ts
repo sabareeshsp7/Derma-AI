@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { signIn } from "@/lib/auth";
+import { isAuthConfigurationError, signIn } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -50,9 +50,17 @@ export async function POST(request: Request) {
     return response;
   } catch (error: unknown) {
     console.error("Login error:", error);
+
+    const configurationError = isAuthConfigurationError(error)
     const response = NextResponse.json(
-      { error: error instanceof Error ? error.message : "Invalid credentials" },
-      { status: 401 }
+      {
+        error: configurationError
+          ? "Authentication service is not configured on the server. Check the Vercel environment variables for Supabase."
+          : error instanceof Error
+            ? error.message
+            : "Invalid credentials",
+      },
+      { status: configurationError ? 500 : 401 }
     );
 
     // Ensure stale auth cookies do not keep user in an invalid authenticated state.

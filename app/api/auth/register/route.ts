@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { signUp } from "@/lib/auth";
+import { isAuthConfigurationError, signUp } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -36,8 +36,15 @@ export async function POST(request: Request) {
     );
   } catch (error: unknown) {
     console.error('Registration error:', error);
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Registration failed" },
+      {
+        error: isAuthConfigurationError(error)
+          ? "Authentication service is not configured on the server. Check the Vercel environment variables for Supabase."
+          : error instanceof Error
+            ? error.message
+            : "Registration failed",
+      },
       { status: 500 }
     );
   }

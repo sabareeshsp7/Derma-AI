@@ -10,14 +10,21 @@ type SupabaseConfig = {
   anonKey: string
 }
 
+const missingConfigMessage =
+  'Supabase environment variables are missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, then restart Next.js.'
+
+const placeholderConfigMessage =
+  'Supabase is still using placeholder values. Replace NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY with real project credentials in .env.local and restart Next.js.'
+
+const invalidUrlMessage =
+  'NEXT_PUBLIC_SUPABASE_URL is invalid. Expected an absolute URL like https://<project-ref>.supabase.co'
+
 function getSupabaseConfig(): SupabaseConfig {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '').trim()
   const anonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
 
   if (!url || !anonKey) {
-    throw new Error(
-      'Supabase environment variables are missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, then restart Next.js.'
-    )
+    throw new Error(missingConfigMessage)
   }
 
   if (
@@ -25,9 +32,7 @@ function getSupabaseConfig(): SupabaseConfig {
     url.includes('your_supabase_url') ||
     anonKey.includes('your_supabase_anon_key')
   ) {
-    throw new Error(
-      'Supabase is still using placeholder values. Replace NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY with real project credentials in .env.local and restart Next.js.'
-    )
+    throw new Error(placeholderConfigMessage)
   }
 
   try {
@@ -36,10 +41,18 @@ function getSupabaseConfig(): SupabaseConfig {
       throw new Error('invalid protocol')
     }
   } catch {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL is invalid. Expected an absolute URL like https://<project-ref>.supabase.co')
+    throw new Error(invalidUrlMessage)
   }
 
   return { url, anonKey }
+}
+
+export function isAuthConfigurationError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false
+  }
+
+  return [missingConfigMessage, placeholderConfigMessage, invalidUrlMessage].includes(error.message)
 }
 
 let supabaseInstance: SupabaseClient | null = null

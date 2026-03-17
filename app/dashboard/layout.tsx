@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard/header";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
+import { decodeJwtPayload } from "@/lib/jwt";
 
 type CustomUser = {
   id: string;
@@ -28,15 +29,17 @@ export default async function DashboardLayout({
 
   if (accessToken) {
     try {
-      const tokenPayload = accessToken.split('.')[1];
-      const normalizedPayload = tokenPayload.replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(Buffer.from(normalizedPayload, 'base64').toString());
+      const payload = decodeJwtPayload(accessToken);
+      if (!payload || typeof payload.sub !== 'string' || payload.sub.length === 0) {
+        throw new Error('Invalid access token');
+      }
+
       const userId = payload.sub;
-      const email = payload.email;
+      const email = typeof payload.email === 'string' ? payload.email : '';
 
       user = {
         id: userId,
-        email: email || '',
+        email,
         user_metadata: {
           avatar_url: '',
         },
