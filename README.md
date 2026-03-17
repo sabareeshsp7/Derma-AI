@@ -594,7 +594,6 @@ This application has been thoroughly tested and optimized for deployment on majo
 // vercel.json - Production Configuration
 {
   "buildCommand": "npm run build",
-  "outputDirectory": ".next",
   "installCommand": "npm install --legacy-peer-deps",
   "functions": {
     "api/**/*.py": {
@@ -609,6 +608,8 @@ This application has been thoroughly tested and optimized for deployment on majo
   ]
 }
 ```
+
+Important: for a Next.js project on Vercel, do not set `Output Directory` to `.next` or `out` in the dashboard. Leave `Output Directory` empty and let the Next.js framework preset manage the build output automatically.
 
 **Environment Variables for Vercel:**
 ```env
