@@ -74,8 +74,12 @@ export default function OnboardingPage() {
           const profile = await response.json()
           setUserProfile(profile)
           
-          // Redirect if onboarded OR if DB is offline (don't block user at onboarding)
-          if (profile.isOnboarded || profile._dbOffline) {
+          // Only redirect to dashboard when definitively onboarded from the real DB.
+          // Do NOT redirect when _dbOffline is true — the API returns a fake
+          // isOnboarded:true in that case, and redirecting to /dashboard would trigger
+          // the dashboard layout sync which returns isOnboarded:false from the real DB,
+          // causing an infinite onboarding ↔ dashboard redirect loop.
+          if (profile.isOnboarded && !profile._dbOffline) {
             router.push(profile.role === "doctor" ? "/doctor-dashboard" : "/dashboard")
             return
           }
