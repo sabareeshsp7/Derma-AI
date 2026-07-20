@@ -79,8 +79,8 @@ export default function DashboardLayout({
   // This prevents the dashboard UI from flashing before a potential redirect
   if (isSyncing) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
       </div>
     )
   }
@@ -90,9 +90,16 @@ export default function DashboardLayout({
   )?.emailAddress || user.emailAddresses?.[0]?.emailAddress || "no-email@example.com"
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-indigo-50/20 relative overflow-hidden">
+      
+      {/* Visual backdrops / floating blur circles for premium glassmorphism */}
+      <div className="absolute top-10 right-10 w-96 h-96 rounded-full bg-indigo-200/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-20 left-64 w-[500px] h-[500px] rounded-full bg-sky-200/15 blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/3 w-[300px] h-[300px] rounded-full bg-pink-100/10 blur-[100px] pointer-events-none" />
+
       <DashboardSidebar isAdmin={dbProfile?.role === "admin"} isCollapsed={isCollapsed} onToggleCollapse={() => setIsCollapsed(!isCollapsed)} />
-      <div className={cn("transition-all duration-300", isCollapsed ? "lg:pl-[70px]" : "lg:pl-64")}>
+      
+      <div className={cn("transition-all duration-300 relative z-10", isCollapsed ? "lg:pl-[70px]" : "lg:pl-64")}>
         <DashboardHeader user={{
           id: user.id,
           firstName: user.firstName ?? null,
