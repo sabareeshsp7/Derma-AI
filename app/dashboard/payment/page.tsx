@@ -244,7 +244,7 @@ export default function PaymentPage() {
 
       setOrderData(newOrderData)
 
-      // Save order to AWS RDS + medical history in parallel
+      // Save order to MongoDB + medical history in parallel
       try {
         const orderNumber = newOrderData.orderId
         const [orderRes] = await Promise.all([

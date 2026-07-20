@@ -67,7 +67,7 @@ export const MedicalHistoryProvider = ({ children }: { children: ReactNode }) =>
           if (stored) {
             try {
               const localItems: HistoryItem[] = JSON.parse(stored);
-              // Filter out ones that eventually made it to AWS to avoid duplicates
+              // Filter out ones that eventually made it to MongoDB to avoid duplicates
               const backendTexts = new Set(data.map((d: any) => d.data + d.date.split("T")[0]));
               offlineUnsynced = localItems.filter((loc) => !backendTexts.has(loc.data + loc.date.split("T")[0]));
               

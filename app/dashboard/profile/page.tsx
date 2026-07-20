@@ -271,8 +271,8 @@ export default function ProfilePage() {
         <div className="flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700 px-4 py-3 text-amber-800 dark:text-amber-300">
           <WifiOff className="h-5 w-5 flex-shrink-0" />
           <div>
-            <p className="font-semibold text-sm">AWS Database Unreachable</p>
-            <p className="text-xs mt-0.5">Showing profile from your Clerk account. Data saved in AWS RDS is temporarily unavailable due to an ETIMEDOUT network error. See the guide at the bottom of this page to fix it.</p>
+            <p className="font-semibold text-sm">Database Temporarily Unavailable</p>
+            <p className="text-xs mt-0.5">Showing your profile from Clerk. Your MongoDB data is temporarily unreachable — please try again in a moment.</p>
           </div>
         </div>
       )}
@@ -531,14 +531,14 @@ export default function ProfilePage() {
             <HeartPulse className="h-5 w-5 text-rose-500" /> Medical Information
           </CardTitle>
           <CardDescription>
-            Collected during onboarding and stored in AWS RDS — used to personalize AI analysis.
+            Collected during onboarding and stored in MongoDB — used to personalize your AI skin analysis.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {dbOffline ? (
             <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 p-4 text-amber-800 dark:text-amber-300 text-sm flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-              Medical data stored in AWS RDS is unavailable while the database is offline.
+              Medical data is temporarily unavailable while the database is offline. Please try again shortly.
             </div>
           ) : editing ? (
             <div className="grid gap-4 md:grid-cols-2">
@@ -604,37 +604,25 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* AWS Fix Guide (only shown when DB is offline) */}
+      {/* DB Offline Notice (only shown when DB is offline) */}
       {dbOffline && (
-        <Card className="border-red-200 dark:border-red-800">
+        <Card className="border-amber-200 dark:border-amber-800">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertTriangle className="h-5 w-5" /> AWS RDS Unreachable — What to Fix
+            <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+              <WifiOff className="h-5 w-5" /> Database Temporarily Unavailable
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <p className="text-muted-foreground">Your AWS RDS instance at <code className="bg-muted px-1 py-0.5 rounded">3.7.51.118:5432</code> is refusing connections from your current IP. This is a <strong>Security Group (firewall) issue</strong> in AWS.</p>
-            <div className="space-y-3">
-              <div className="flex gap-3">
-                <span className="flex-shrink-0 font-bold text-primary">1.</span>
-                <span>Go to <strong>AWS Console → RDS → Databases → dermasense-db → Connectivity &amp; Security → VPC security groups</strong></span>
-              </div>
-              <div className="flex gap-3">
-                <span className="flex-shrink-0 font-bold text-primary">2.</span>
-                <span>Click the linked security group → <strong>Inbound rules → Edit inbound rules</strong></span>
-              </div>
-              <div className="flex gap-3">
-                <span className="flex-shrink-0 font-bold text-primary">3.</span>
-                <span>Add a rule: <code className="bg-muted px-1 py-0.5 rounded">Type: PostgreSQL | Port: 5432 | Source: My IP</code> (or <code className="bg-muted px-1 py-0.5 rounded">0.0.0.0/0</code> for development)</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="flex-shrink-0 font-bold text-primary">4.</span>
-                <span>Ensure the RDS instance is <strong>not in a private subnet</strong> — it must be publicly accessible. In RDS settings, find <strong>Publicly accessible</strong> and set it to <strong>Yes</strong>.</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="flex-shrink-0 font-bold text-primary">5.</span>
-                <span>After saving, wait ~30 seconds and <Button variant="link" className="h-auto p-0 text-sm" onClick={fetchProfile}>click here to retry</Button>.</span>
-              </div>
+          <CardContent className="space-y-3 text-sm">
+            <p className="text-muted-foreground">
+              Your profile data is stored in <strong>MongoDB Atlas</strong>. The connection is temporarily unavailable — this is usually a transient network issue and resolves on its own.
+            </p>
+            <div className="flex gap-3">
+              <span className="flex-shrink-0 font-bold text-primary">1.</span>
+              <span>Wait a few seconds and <Button variant="link" className="h-auto p-0 text-sm" onClick={fetchProfile}>click here to retry</Button>.</span>
+            </div>
+            <div className="flex gap-3">
+              <span className="flex-shrink-0 font-bold text-primary">2.</span>
+              <span>If the issue persists, check your <strong>MongoDB Atlas</strong> dashboard to ensure the cluster is running and your Vercel deployment IP is whitelisted under <strong>Network Access</strong>.</span>
             </div>
           </CardContent>
         </Card>

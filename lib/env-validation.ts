@@ -1,17 +1,17 @@
 /**
  * Environment Variable Validation
- * Validates required environment variables at build time
- * Prevents deployment with missing critical configuration
+ * Validates required environment variables at startup.
+ * The app uses MongoDB Atlas as the only database.
  */
 
 const requiredEnvVars = [
-  'NEXT_PUBLIC_SUPABASE_URL',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  'MONGODB_URI',
+  'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
+  'CLERK_SECRET_KEY',
 ] as const
 
 const optionalEnvVars = [
-  'AWS_ACCESS_KEY_ID',
-  'AWS_SECRET_ACCESS_KEY',
+  'CLOUDINARY_URL',
   'API_URL',
 ] as const
 
@@ -28,7 +28,7 @@ export function validateEnvironment() {
 
   // Check optional but important variables
   for (const key of optionalEnvVars) {
-    if (!process.env[key] || process.env[key] === 'YOUR_AWS_ACCESS_KEY_HERE') {
+    if (!process.env[key]) {
       warnings.push(key)
     }
   }
@@ -36,8 +36,7 @@ export function validateEnvironment() {
   if (missing.length > 0) {
     throw new Error(
       `❌ Missing required environment variables:\n${missing.join('\n')}\n\n` +
-      `Please set these in your Vercel Dashboard → Settings → Environment Variables\n` +
-      `See .env.production.example for details`
+      `Please set these in your Vercel Dashboard → Settings → Environment Variables`
     )
   }
 

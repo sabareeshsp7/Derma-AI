@@ -271,7 +271,7 @@ export default function AnalysisHistoryPage() {
               Skin Analysis History
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-              All your past AI-powered skin diagnoses — stored securely and synced from AWS.
+              All your past AI-powered skin diagnoses — stored securely in MongoDB.
             </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
