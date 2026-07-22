@@ -100,15 +100,8 @@ export function DashboardHeader({ user }: { user: PlainUser | null }) {
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/40 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
       <div className="container flex h-14 items-center gap-4">
 
-        {/* Left — Logo + Brand */}
-        <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-md shadow-indigo-500/20">
-            <Activity className="h-4 w-4 text-white" />
-          </div>
-          <span className="hidden sm:block text-base font-black tracking-tight bg-gradient-to-r from-slate-900 to-indigo-700 bg-clip-text text-transparent">
-            DermaAI
-          </span>
-        </Link>
+        {/* Spacer / Left layout aligner */}
+        <div className="hidden lg:block w-6" />
 
         {/* Center — Live Clock Pill */}
         <div className="flex-1 flex justify-center">

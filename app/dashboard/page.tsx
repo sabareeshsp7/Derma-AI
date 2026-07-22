@@ -12,18 +12,18 @@ import {
   ChevronLeft,
   ChevronRight,
   Ticket,
-  ShieldCheck,
   BrainCircuit,
   TrendingUp,
   CheckCircle2,
-  Database,
   ArrowUpRight,
   Users,
   ArrowRightCircle,
   Sparkles,
-  Zap,
-  Star,
-  Heart
+  Lightbulb,
+  Leaf,
+  Sun,
+  Droplets,
+  Shield
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -153,24 +153,84 @@ const features = [
   },
 ]
 
-// Telemetry ribbon items
-const telemetryItems = [
-  { icon: BrainCircuit, label: "AI Analyzer", value: "v4.2.1 Live", color: "text-indigo-600", dotColor: "bg-indigo-500" },
-  { icon: ShieldCheck, label: "HIPAA Standard", value: "Compliant", color: "text-emerald-600", dotColor: "bg-emerald-500" },
-  { icon: Database, label: "Database", value: "Encrypted", color: "text-blue-600", dotColor: "bg-blue-500" },
-  { icon: Activity, label: "System Status", value: "Nominal", color: "text-rose-600", dotColor: "bg-rose-500" },
+// Rotating daily skin health tips — unique value only available on the welcome panel
+const skinTips = [
+  {
+    icon: Sun,
+    category: "UV Protection",
+    categoryColor: "text-amber-600",
+    categoryBg: "bg-amber-50 border-amber-100",
+    accentFrom: "from-amber-50",
+    accentTo: "to-orange-50/60",
+    accentBorder: "border-amber-100/80",
+    dot: "bg-amber-400",
+    tip: "Apply SPF 30+ sunscreen every morning — even on cloudy days. UV rays penetrate clouds and cause up to 80% of visible skin aging.",
+  },
+  {
+    icon: Droplets,
+    category: "Hydration",
+    categoryColor: "text-sky-600",
+    categoryBg: "bg-sky-50 border-sky-100",
+    accentFrom: "from-sky-50",
+    accentTo: "to-blue-50/60",
+    accentBorder: "border-sky-100/80",
+    dot: "bg-sky-400",
+    tip: "Drinking 8+ glasses of water daily keeps your skin's moisture barrier intact — reducing flaking, tightness and fine lines.",
+  },
+  {
+    icon: Leaf,
+    category: "Natural Care",
+    categoryColor: "text-emerald-600",
+    categoryBg: "bg-emerald-50 border-emerald-100",
+    accentFrom: "from-emerald-50",
+    accentTo: "to-teal-50/60",
+    accentBorder: "border-emerald-100/80",
+    dot: "bg-emerald-400",
+    tip: "Aloe vera gel applied to irritated skin reduces inflammation by up to 40%. Refrigerate it for an added soothing effect.",
+  },
+  {
+    icon: Shield,
+    category: "Early Detection",
+    categoryColor: "text-violet-600",
+    categoryBg: "bg-violet-50 border-violet-100",
+    accentFrom: "from-violet-50",
+    accentTo: "to-indigo-50/60",
+    accentBorder: "border-violet-100/80",
+    dot: "bg-violet-400",
+    tip: "Examine your skin monthly using the ABCDE rule — Asymmetry, Border, Color, Diameter, Evolution. Early detection saves lives.",
+  },
+  {
+    icon: Lightbulb,
+    category: "Expert Insight",
+    categoryColor: "text-rose-600",
+    categoryBg: "bg-rose-50 border-rose-100",
+    accentFrom: "from-rose-50",
+    accentTo: "to-pink-50/60",
+    accentBorder: "border-rose-100/80",
+    dot: "bg-rose-400",
+    tip: "Hot showers strip natural skin oils. Switch to lukewarm water and apply moisturiser within 3 minutes of bathing to lock in hydration.",
+  },
 ]
 
 export default function DashboardPage() {
   const [currentBanner, setCurrentBanner] = useState(0)
+  const [tipIndex, setTipIndex] = useState(0)
   const { profile } = useProfile()
 
   const nextBanner = () => setCurrentBanner((prev) => (prev + 1) % banners.length)
   const prevBanner = () => setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length)
+  const nextTip = () => setTipIndex((prev) => (prev + 1) % skinTips.length)
+  const prevTip = () => setTipIndex((prev) => (prev - 1 + skinTips.length) % skinTips.length)
 
   useEffect(() => {
     const timer = setInterval(nextBanner, 6000)
     return () => clearInterval(timer)
+  }, [])
+
+  // Seed tip index from day-of-year so it feels "daily" but stays stable within a session
+  useEffect(() => {
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000)
+    setTipIndex(dayOfYear % skinTips.length)
   }, [])
 
   const firstName = profile?.fullName?.split(' ')[0] || ""
@@ -195,80 +255,102 @@ export default function DashboardPage() {
     >
 
       {/* ═══════════════════════════════════════
-          WELCOME BANNER — Rich Indigo Gradient
+          WELCOME HERO — Greeting + Daily Skin Wisdom
       ═══════════════════════════════════════ */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-teal-500 p-8 sm:p-10 text-white shadow-[0_16px_48px_rgba(79,70,229,0.25)]">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
-        {/* Animated glow blobs */}
-        <div className="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none animate-pulse" />
-        <div className="absolute -left-8 -bottom-8 w-48 h-48 rounded-full bg-teal-300/20 blur-2xl pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-24 bg-white/5 blur-3xl pointer-events-none rounded-full" />
-
-        {/* Subtle mesh grid */}
-        <div className="absolute inset-0 opacity-[0.06] pointer-events-none"
-          style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-        />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2.5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm text-xs font-bold tracking-wide">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-              </span>
-              DermaAI Clinical Suite — Active
-            </div>
-            <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-none">
-              {greeting}{firstName ? `, ${firstName}` : "!"}
-            </h1>
-            <p className="text-base sm:text-lg text-white/80 max-w-xl font-medium leading-relaxed">
-              Your skin health dashboard is ready. Run a new AI analysis, connect with a specialist, or check your latest results.
-            </p>
-            <div className="flex gap-3 pt-1">
-              <Link href="/dashboard/analysis">
-                <Button size="sm" className="bg-white text-indigo-700 font-bold hover:bg-indigo-50 rounded-xl shadow-md shadow-black/10 transition-all hover:scale-105">
-                  <Zap className="h-4 w-4 mr-1.5" /> Start Analysis
-                </Button>
-              </Link>
-              <Link href="/dashboard/appointments">
-                <Button size="sm" variant="ghost" className="text-white border border-white/30 hover:bg-white/10 rounded-xl font-semibold">
-                  Book Doctor
-                </Button>
-              </Link>
-            </div>
+        {/* Greeting Card — left 2/5 */}
+        <div className="lg:col-span-2 relative overflow-hidden rounded-3xl bg-white border border-slate-200/70 shadow-sm p-6 sm:p-7 flex flex-col justify-between min-h-[160px]">
+          {/* Decorative blob */}
+          <div className="absolute -bottom-8 -right-8 w-40 h-40 rounded-full bg-indigo-50 blur-2xl pointer-events-none" />
+          <div className="absolute top-4 right-4 opacity-10 pointer-events-none select-none">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <circle cx="40" cy="40" r="38" stroke="#6366f1" strokeWidth="2" strokeDasharray="6 4"/>
+              <circle cx="40" cy="40" r="26" stroke="#6366f1" strokeWidth="1.5"/>
+              <circle cx="40" cy="40" r="6" fill="#6366f1"/>
+            </svg>
           </div>
 
-          {/* Stats cluster */}
-          <div className="grid grid-cols-2 gap-3 md:shrink-0">
-            {[
-              { icon: Sparkles, label: "AI Analyses", value: "Real-Time", color: "bg-blue-400/20" },
-              { icon: Star, label: "Specialists", value: "10+ Active", color: "bg-teal-400/20" },
-              { icon: Heart, label: "Health Score", value: "Monitored", color: "bg-pink-400/20" },
-              { icon: ShieldCheck, label: "Security", value: "HIPAA", color: "bg-emerald-400/20" },
-            ].map((stat) => (
-              <div key={stat.label} className={`flex items-center gap-2.5 ${stat.color} border border-white/10 rounded-2xl p-3 backdrop-blur-sm`}>
-                <stat.icon className="h-4 w-4 text-white/90 shrink-0" />
-                <div>
-                  <p className="text-[9px] text-white/60 font-bold uppercase tracking-wider">{stat.label}</p>
-                  <p className="text-xs font-black text-white">{stat.value}</p>
+          <div className="relative z-10 space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-[11px] font-semibold text-indigo-600">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-600" />
+              </span>
+              DermaAI Active
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+              {greeting}{firstName ? `,` : "!"}
+              {firstName && <span className="block text-indigo-600">{firstName}</span>}
+            </h1>
+
+            <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-xs">
+              Your skin health workspace is ready. Use the sidebar or modules below to navigate.
+            </p>
+          </div>
+
+          <div className="relative z-10 mt-4 flex items-center gap-2">
+            <div className="h-px flex-1 bg-gradient-to-r from-slate-100 via-indigo-100 to-transparent" />
+            <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Clinical Suite</span>
+          </div>
+        </div>
+
+        {/* Daily Skin Wisdom Card — right 3/5 */}
+        {(() => {
+          const tip = skinTips[tipIndex]
+          const TipIcon = tip.icon
+          return (
+            <div className={`lg:col-span-3 relative overflow-hidden rounded-3xl bg-gradient-to-br ${tip.accentFrom} via-white ${tip.accentTo} border ${tip.accentBorder} shadow-sm p-6 sm:p-7 flex flex-col justify-between min-h-[160px]`}>
+              {/* Background decorative dots */}
+              <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
+                style={{ backgroundImage: "radial-gradient(circle, #1e293b 1px, transparent 1px)", backgroundSize: "20px 20px" }}
+              />
+              <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/60 blur-3xl pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col h-full gap-4">
+                {/* Header row */}
+                <div className="flex items-center justify-between">
+                  <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full border text-[11px] font-bold ${tip.categoryBg} ${tip.categoryColor}`}>
+                    <TipIcon className="h-3 w-3" />
+                    {tip.category}
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Daily Skin Wisdom</span>
+                </div>
+
+                {/* Tip text */}
+                <p className="text-sm text-slate-700 font-medium leading-relaxed flex-1">
+                  <span className={`font-black text-lg leading-none ${tip.categoryColor} mr-1.5`}>&ldquo;</span>
+                  {tip.tip}
+                  <span className={`font-black text-lg leading-none ${tip.categoryColor} ml-1`}>&rdquo;</span>
+                </p>
+
+                {/* Navigation dots + arrows */}
+                <div className="flex items-center gap-3 mt-auto pt-2 border-t border-white/60">
+                  <div className="flex gap-1.5">
+                    {skinTips.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setTipIndex(i)}
+                        aria-label={`Tip ${i + 1}`}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${i === tipIndex ? `w-5 ${tip.dot}` : "w-1.5 bg-slate-300"}`}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex gap-1.5 ml-auto">
+                    <button onClick={prevTip} className="h-7 w-7 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-all">
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={nextTip} className="h-7 w-7 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-all">
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Telemetry Ribbon */}
-        <div className="relative z-10 mt-7 pt-5 border-t border-white/15 flex flex-wrap gap-x-6 gap-y-2">
-          {telemetryItems.map((item) => (
-            <div key={item.label} className="flex items-center gap-2">
-              <span className={`h-1.5 w-1.5 rounded-full ${item.dotColor} animate-pulse`} />
-              <item.icon className="h-3.5 w-3.5 text-white/70" />
-              <span className="text-xs font-semibold text-white/70">
-                {item.label}: <span className="text-white font-bold">{item.value}</span>
-              </span>
             </div>
-          ))}
-        </div>
+          )
+        })()}
+
       </div>
 
       {/* ═══════════════════════════════════════

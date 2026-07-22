@@ -67,9 +67,9 @@ function analyzeFrameLocally(
   const isBlurry = stddev < 18   // low variance = low texture = blurry / flat
 
   let tip: string | null = null
-  if (isDark)    tip = '🌑 Too dark — move to better lighting or turn on a lamp.'
-  else if (isBright) tip = '☀️ Too bright — avoid direct sunlight or bright flash.'
-  else if (isBlurry) tip = '📷 Image is blurry — hold the camera steady and closer.'
+  if (isDark)    tip = 'Too dark — move to better lighting or turn on a lamp.'
+  else if (isBright) tip = 'Too bright — avoid direct sunlight or bright flash.'
+  else if (isBlurry) tip = 'Image is blurry — hold the camera steady and closer.'
 
   return { brightness: avg, isBlurry, isDark, isBright, tip }
 }
@@ -395,9 +395,9 @@ export function CameraCapture({ bodyPart, onCapture }: CameraCaptureProps) {
       LOADING:      'Starting camera…',
       VALIDATING:   'AI is checking your frame…',
       WRONG_PART:   `Point your camera at your ${bodyPartInfo?.label}`,
-      POSITIONING:  'Skin detected ✓ — move lesion into the ring',
-      ACCEPTED:     '✅ Perfect shot — press Capture!',
-      MANUAL_READY: '📸 Ready to capture manually — press the button',
+      POSITIONING:  'Skin detected — move lesion into the ring',
+      ACCEPTED:     'Perfect shot — press Capture!',
+      MANUAL_READY: 'Ready to capture manually — press the button',
       CAPTURED:     'Image captured — confirm or retake',
       DENIED:       'Camera access denied',
       NO_CAMERA:    'No camera found',
@@ -611,7 +611,7 @@ export function CameraCapture({ bodyPart, onCapture }: CameraCaptureProps) {
             >
               <Camera className={`mr-2 h-5 w-5 ${canCapture ? 'animate-pulse' : ''}`} />
               {canCapture
-                ? cameraState === 'MANUAL_READY' ? '📸 Capture Manually' : '📸 Capture Photo'
+                ? cameraState === 'MANUAL_READY' ? 'Capture Manually' : 'Capture Photo'
                 : 'Waiting for AI validation…'}
             </Button>
 

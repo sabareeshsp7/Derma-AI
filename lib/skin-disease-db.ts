@@ -744,23 +744,23 @@ export const BODY_DISEASE_MAP: Record<string, string[] | 'all'> = {
 export interface BodyPartInfo {
   id: string
   label: string
-  icon: string
+  icon: string  // lucide icon name key — mapped to component in UI
   hint: string
   overlayShape: 'oval' | 'rectangle-tall' | 'square' | 'circle'
   facingMode: 'user' | 'environment'
 }
 
 export const BODY_PARTS: BodyPartInfo[] = [
-  { id: 'face',    label: 'Face',          icon: '🧑', hint: 'Rosacea, Acne, Melasma, BCC, Melanoma',        overlayShape: 'oval',           facingMode: 'user' },
-  { id: 'arm',     label: 'Arm',           icon: '💪', hint: 'Melanoma, Moles, Eczema, Psoriasis',           overlayShape: 'rectangle-tall', facingMode: 'environment' },
-  { id: 'hand',    label: 'Hand / Fingers', icon: '🤲', hint: 'Warts, Eczema, Psoriasis, Scabies',           overlayShape: 'square',         facingMode: 'environment' },
-  { id: 'back',    label: 'Back',          icon: '🔙', hint: 'Melanoma, Moles, Seborrheic Keratosis',        overlayShape: 'circle',         facingMode: 'environment' },
-  { id: 'leg',     label: 'Leg',           icon: '🦵', hint: 'Vascular Lesions, Cellulitis, Eczema',         overlayShape: 'rectangle-tall', facingMode: 'environment' },
-  { id: 'foot',    label: 'Foot / Sole',   icon: '🦶', hint: 'Tinea, Warts, Melanoma',                      overlayShape: 'oval',           facingMode: 'environment' },
-  { id: 'chest',   label: 'Chest',         icon: '🫁', hint: 'Moles, Eczema, Psoriasis, Folliculitis',       overlayShape: 'circle',         facingMode: 'environment' },
-  { id: 'abdomen', label: 'Abdomen',       icon: '🫀', hint: 'Cysts, Lipoma, Shingles, Moles',               overlayShape: 'circle',         facingMode: 'environment' },
-  { id: 'scalp',   label: 'Scalp / Head',  icon: '🧠', hint: 'Psoriasis, Tinea, Melanoma',                  overlayShape: 'circle',         facingMode: 'environment' },
-  { id: 'eye',     label: 'Eye Area',      icon: '👁️', hint: 'BCC, Melanoma, Molluscum',                    overlayShape: 'oval',           facingMode: 'user' },
-  { id: 'neck',    label: 'Neck',          icon: '🗣️', hint: 'Seborrheic Keratosis, Moles, BCC',            overlayShape: 'oval',           facingMode: 'user' },
-  { id: 'other',   label: 'Other',         icon: '🔍', hint: 'All 40+ conditions will be checked',           overlayShape: 'circle',         facingMode: 'environment' },
+  { id: 'face',    label: 'Face',           icon: 'face',    hint: 'Rosacea, Acne, Melasma, BCC, Melanoma',        overlayShape: 'oval',           facingMode: 'user' },
+  { id: 'arm',     label: 'Arm',            icon: 'arm',     hint: 'Melanoma, Moles, Eczema, Psoriasis',           overlayShape: 'rectangle-tall', facingMode: 'environment' },
+  { id: 'hand',    label: 'Hand / Fingers', icon: 'hand',    hint: 'Warts, Eczema, Psoriasis, Scabies',            overlayShape: 'square',         facingMode: 'environment' },
+  { id: 'back',    label: 'Back',           icon: 'back',    hint: 'Melanoma, Moles, Seborrheic Keratosis',         overlayShape: 'circle',         facingMode: 'environment' },
+  { id: 'leg',     label: 'Leg',            icon: 'leg',     hint: 'Vascular Lesions, Cellulitis, Eczema',          overlayShape: 'rectangle-tall', facingMode: 'environment' },
+  { id: 'foot',    label: 'Foot / Sole',    icon: 'foot',    hint: 'Tinea, Warts, Melanoma',                       overlayShape: 'oval',           facingMode: 'environment' },
+  { id: 'chest',   label: 'Chest',          icon: 'chest',   hint: 'Moles, Eczema, Psoriasis, Folliculitis',        overlayShape: 'circle',         facingMode: 'environment' },
+  { id: 'abdomen', label: 'Abdomen',        icon: 'abdomen', hint: 'Cysts, Lipoma, Shingles, Moles',                overlayShape: 'circle',         facingMode: 'environment' },
+  { id: 'scalp',   label: 'Scalp / Head',   icon: 'scalp',   hint: 'Psoriasis, Tinea, Melanoma',                   overlayShape: 'circle',         facingMode: 'environment' },
+  { id: 'eye',     label: 'Eye Area',       icon: 'eye',     hint: 'BCC, Melanoma, Molluscum',                      overlayShape: 'oval',           facingMode: 'user' },
+  { id: 'neck',    label: 'Neck',           icon: 'neck',    hint: 'Seborrheic Keratosis, Moles, BCC',              overlayShape: 'oval',           facingMode: 'user' },
+  { id: 'other',   label: 'Other',          icon: 'other',   hint: 'All 40+ conditions will be checked',            overlayShape: 'circle',         facingMode: 'environment' },
 ]

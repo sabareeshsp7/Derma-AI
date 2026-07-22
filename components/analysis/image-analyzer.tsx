@@ -5,7 +5,8 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import {
   Upload, X, AlertCircle, CheckCircle2, Loader2, Stethoscope,
   AlertTriangle, Volume2, Download, Clock, Brain, ChevronRight,
-  Activity, Eye, MapPin, Microscope, ShieldAlert, Zap
+  Activity, Eye, MapPin, Microscope, ShieldAlert, Zap,
+  User, Hand, Footprints, Heart, Search, ScanLine, RotateCcw,
 } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
@@ -164,12 +165,11 @@ export function ImageAnalyzer() {
     if (!('Notification' in window) || Notification.permission !== 'granted') return
     const isDanger = ['Critical', 'High'].includes(data.severity)
     const isHealthy = data.prediction === 'healthy'
-    const icon = isDanger ? '🚨' : isHealthy ? '✅' : '⚠️'
     const title = isDanger
-      ? `${icon} DermaSense: Urgent — ${data.severity} Risk Detected`
+      ? `DermaSense: Urgent — ${data.severity} Risk Detected`
       : isHealthy
-      ? `${icon} DermaSense: Healthy Skin — No Issues Found`
-      : `${icon} DermaSense: Analysis Complete`
+      ? `DermaSense: Healthy Skin — No Issues Found`
+      : `DermaSense: Analysis Complete`
     const body = isHealthy
       ? 'Your skin looks healthy. No significant condition detected.'
       : `${data.prediction_name} — ${(data.confidence * 100).toFixed(1)}% confidence · ${data.severity} severity · ${data.urgency}`
@@ -183,6 +183,26 @@ export function ImageAnalyzer() {
       })
     } catch { /* Safari / blocked */ }
   }, [])
+
+
+// ── Body part icon mapper (replaces emoji icon field) ─────────────────────
+function BodyPartIcon({ id, className = "h-5 w-5" }: { id: string; className?: string }) {
+  const iconMap: Record<string, React.ReactNode> = {
+    face:    <User className={className} />,
+    arm:     <Activity className={className} />,
+    hand:    <Hand className={className} />,
+    back:    <RotateCcw className={className} />,
+    leg:     <Activity className={className} />,
+    foot:    <Footprints className={className} />,
+    chest:   <Heart className={className} />,
+    abdomen: <ScanLine className={className} />,
+    scalp:   <Brain className={className} />,
+    eye:     <Eye className={className} />,
+    neck:    <Stethoscope className={className} />,
+    other:   <Search className={className} />,
+  }
+  return <>{iconMap[id] ?? <Microscope className={className} />}</>
+}
 
   const bodyPartInfo = BODY_PARTS.find(p => p.id === bodyPart)
 
@@ -283,12 +303,12 @@ export function ImageAnalyzer() {
           description: data.message || 'Capture a clear, close-up photo of the skin.',
         })
       } else if (isDanger) {
-        toast.error(`🚨 ${data.severity} Risk — ${data.prediction_name}`, {
+        toast.error(`${data.severity} Risk — ${data.prediction_name}`, {
           description: `${(data.confidence * 100).toFixed(1)}% confidence · ${data.urgency}`,
           duration: 8000,
         })
       } else if (data.prediction === 'healthy') {
-        toast.success('✅ Healthy Skin — No Disease Detected', {
+        toast.success('Healthy Skin — No Disease Detected', {
           description: 'Continue routine skin care and annual check-ups.',
           duration: 6000,
         })
@@ -494,7 +514,9 @@ export function ImageAnalyzer() {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{bodyPartInfo?.icon}</span>
+                    <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-700 dark:text-emerald-300">
+                      <BodyPartIcon id={bodyPartInfo?.id ?? 'other'} className="h-4 w-4" />
+                    </div>
                     <div>
                       <CardTitle className="text-emerald-900 dark:text-emerald-100">Scanning: {bodyPartInfo?.label}</CardTitle>
                       <CardDescription>Step 2 — Capture your skin image</CardDescription>
@@ -757,8 +779,8 @@ export function ImageAnalyzer() {
                   <div className="flex flex-col gap-3">
                     <div className="flex flex-wrap items-center gap-2">
                       {bodyPartInfo && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded-full text-xs font-medium border shadow-sm">
-                          <span>{bodyPartInfo.icon}</span>
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-800 rounded-full text-xs font-medium border shadow-sm">
+                          <BodyPartIcon id={bodyPartInfo.id} className="h-3 w-3" />
                           <span>{bodyPartInfo.label}</span>
                         </span>
                       )}
